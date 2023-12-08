@@ -1,0 +1,12 @@
+default:
+    suites:
+        default:
+            paths:
+                - '%paths.base%/tests/Acceptance/Feature'
+            contexts:
+                - App\Tests\Acceptance\Context\DemoContext
+                - App\Tests\Acceptance\Context\InitContext
+
+    extensions:
+        FriendsOfBehat\SymfonyExtension:
+            bootstrap: tests/bootstrap.php

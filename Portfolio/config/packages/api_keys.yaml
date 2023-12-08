@@ -1,0 +1,6 @@
+parameters:
+  bitget:
+    rest_url: https://api.bitget.com
+    ws_url: wss://ws.bitget.com/v2/ws/public
+    ws_private_url: wss://ws.bitget.com/v2/ws/private
+    api_key: '%env(string:BITGET_API_KEY)%'
