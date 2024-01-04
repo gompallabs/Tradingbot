@@ -8,5 +8,4 @@ use App\Domain\Asset\Asset;
 
 abstract class Shitcoin extends Crypto implements Asset
 {
-
 }

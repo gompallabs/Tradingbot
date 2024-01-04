@@ -1,0 +1,5 @@
+binance_server_time:
+  path: /api/v3/time
+  methods: [GET]
+
+

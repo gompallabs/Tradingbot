@@ -1,0 +1,54 @@
+version: "3.4"
+services:
+
+  portfolio_back_nginx:
+    container_name: portfolio_back_nginx
+    build:
+      context: Portfolio
+      target: symfony_nginx
+      args:
+        - APP_DIR=.
+        - NGINX_CONF_DIR=./.docker/nginx
+        - INSTALL_DIR=app
+        - NGINX_VERSION=1.20
+        - PHP_VERSION=8.2
+        - TZ=Europe/Paris
+    ports:
+      - "8080:80"
+    volumes:
+      - php_socket_portfolio_back:/var/run/php
+
+  portfolio_back:
+    container_name: portfolio_back
+    build:
+      context: Portfolio
+      target: app_php
+      args:
+        - APP_ENV=dev
+        - APP_DIR=.
+        - TZ=Europe/Paris
+        - GID=1000
+        - UID=1000
+        - PHP_VERSION=8.2
+        - NGINX_VERSION=1.20
+    volumes:
+      - php_socket_portfolio_back:/var/run/php
+      - "${PWD}/Portfolio/:/srv/app/"
+      - "${PWD}/Portfolio/.docker/php-fpm.d/conf.d/symfony.dev.ini:/usr/local/etc/php/conf.d/symfony.ini:ro"
+
+  portfolio_db:
+    container_name: portfolio_db
+    image: postgres:alpine
+    environment:
+      POSTGRES_PASSWORD: portfolio_pwd
+      POSTGRES_USER: portfolio_user
+      POSTGRES_DB: portfolio_db
+    volumes:
+      - "dbdata:/var/lib/postgresql"
+    ports:
+      - "5432:5432"
+
+volumes:
+  php_socket_portfolio_back:
+  dbdata:
+

@@ -6,5 +6,4 @@ namespace App\Domain\Quotes\Quote;
 
 class Ask
 {
-
 }

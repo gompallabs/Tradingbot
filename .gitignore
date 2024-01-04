@@ -1,7 +1,8 @@
 ###> symfony/framework-bundle ###
-/.env.local
-/.env.local.php
-/.env.*.local
+.env.local
+.env.local.php
+.env.*.local
+.env.test
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
@@ -16,3 +17,9 @@
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
+
+node_modules
+
+HTML
+DATA
+rust-bybit

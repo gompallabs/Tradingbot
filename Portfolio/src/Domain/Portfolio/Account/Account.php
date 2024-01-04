@@ -4,45 +4,19 @@ declare(strict_types=1);
 
 namespace App\Domain\Portfolio\Account;
 
-class Account implements AssetHolding
+interface Account
 {
-    public function deposit()
-    {
-        // TODO: Implement deposit() method.
-    }
+    public function deposit();
 
-    public function withdraw()
-    {
-        // TODO: Implement withdraw() method.
-    }
+    public function withdraw();
 
-    public function transfer()
-    {
-        // TODO: Implement transfer() method.
-    }
+    public function transfer();
 
-    public function getId()
-    {
-        // TODO: Implement getId() method.
-    }
+    public function getId();
 
-    public function getAssetInfo()
-    {
-        // TODO: Implement getAssetInfo() method.
-    }
+    public function getAssetInfo();
 
-    public function getBalance()
-    {
-        // TODO: Implement getBalance() method.
-    }
+    public function getBalance();
 
-    public function getCustodian()
-    {
-        // TODO: Implement getCustodian() method.
-    }
-
-    public function getTransactions()
-    {
-        // TODO: Implement getTransactions() method.
-    }
+    public function getTransactions();
 }

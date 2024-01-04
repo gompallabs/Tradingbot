@@ -6,5 +6,4 @@ use App\Domain\Source\Source;
 
 interface PriceApi extends Source
 {
-
 }

@@ -12,6 +12,36 @@ framework:
         cookie_samesite: lax
         storage_factory_id: session.storage.factory.native
 
+    # http client
+    http_client:
+        scoped_clients:
+            binance.rest.client:
+                base_uri: https://api-gcp.binance.com/
+                scope: https://api-gcp.binance.com
+                headers:
+                    Accept: 'application/json'
+            bitget.rest.client:
+                base_uri: https://api.bitget.com/
+                scope: https://api.bitget.com/
+                headers:
+                    Accept: 'application/json'
+            bybit.rest.client:
+                base_uri: https://api.bybit.com/
+                scope: https://api.bitget.com/
+                headers:
+                    Accept: 'application/json'
+            coinbase.rest.client:
+                base_uri: https://api.coinbase.com/
+                scope: https://api.coinbase.com/
+                headers:
+                    Accept: 'application/json'
+            kraken.rest.client:
+                base_uri: https://api.kraken.com/
+                scope: https://api.kraken.com/
+                headers:
+                    Accept: 'application/json'
+
+
     #esi: true
     #fragments: true
     php_errors:

@@ -10,5 +10,4 @@ namespace App\Domain\Quotes\Price;
  * */
 abstract class Price
 {
-
 }

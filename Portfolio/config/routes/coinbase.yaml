@@ -1,0 +1,4 @@
+coinbase_server_time:
+  path: /v5/market/time
+  methods: [GET]
+

@@ -6,5 +6,4 @@ namespace App\Domain\Portfolio\Transaction;
 
 class TransferFee extends Fee
 {
-
 }

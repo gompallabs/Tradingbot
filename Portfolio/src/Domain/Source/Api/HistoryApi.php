@@ -8,5 +8,4 @@ use App\Domain\Source\Source;
 
 interface HistoryApi extends Source
 {
-
 }

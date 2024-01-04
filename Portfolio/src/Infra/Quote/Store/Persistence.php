@@ -6,5 +6,4 @@ namespace App\Infra\Quote\Store;
 
 class Persistence
 {
-
 }

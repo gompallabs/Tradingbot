@@ -6,5 +6,4 @@ namespace App\Domain\Quotes\Price;
 
 class Close
 {
-
 }

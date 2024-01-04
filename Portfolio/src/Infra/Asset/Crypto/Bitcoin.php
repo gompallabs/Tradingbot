@@ -17,6 +17,5 @@ final class Bitcoin extends Crypto implements Asset
 
     public function getAssetClass(): AssetClass
     {
-
     }
 }

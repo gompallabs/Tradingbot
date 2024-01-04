@@ -4,8 +4,9 @@ default:
             paths:
                 - '%paths.base%/tests/Acceptance/Feature'
             contexts:
-                - App\Tests\Acceptance\Context\DemoContext
+                - App\Tests\Acceptance\Context\DbContext
                 - App\Tests\Acceptance\Context\InitContext
+                - App\Tests\Acceptance\Context\RepositoryContext
 
     extensions:
         FriendsOfBehat\SymfonyExtension:

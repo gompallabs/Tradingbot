@@ -1,0 +1,17 @@
+version: "3.4"
+services:
+
+  portfolio_db_test:
+    container_name: portfolio_db_test
+    image: postgres:alpine
+    environment:
+      POSTGRES_PASSWORD: portfolio_db_test
+      POSTGRES_USER: portfolio_db_test
+      POSTGRES_DB: portfolio_db_test
+    volumes:
+      - "dbdata_test:/var/lib/postgresql"
+
+volumes:
+  php_socket_portfolio_back_test:
+  dbdata_test:
+

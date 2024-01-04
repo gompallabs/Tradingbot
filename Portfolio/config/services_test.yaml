@@ -1,7 +1,29 @@
+parameters:
+    bybit_rest_api_error: "https://bybit-exchange.github.io/docs/copy-trade/error"
+    bitget_rest_api_error: "https://bitgetlimited.github.io/apidoc/en/spot/#restapi-error-code"
+    binance_api_key: '%env(string:BINANCE_API_KEY)%'
+    binance_api_key_secret: '%env(string:BINANCE_API_KEY_SECRET)%'
+    bitget_api_key: '%env(string:BITGET_API_KEY)%'
+    bitget_api_key_secret: '%env(string:BITGET_API_KEY_SECRET)%'
+    bybit_api_key: '%env(string:BYBIT_API_KEY)%'
+    bybit_api_key_secret: '%env(string:BYBIT_API_KEY_SECRET)%'
+    coinbase_api_key: '%env(string:COINBASE_API_KEY)%'
+    coinbase_api_key_secret: '%env(string:COINBASE_API_KEY_SECRET)%'
+    kraken_spot_api_key: '%env(string: KRAKEN_SPOT_API_KEY)%'
+    kraken_spot_api_key_secret: '%env(string: KRAKEN_SPOT_API_KEY_SECRET)%'
+    kraken_futures_api_key: '%env(string: KRAKEN_FUTURES_API_KEY)%'
+    kraken_futures_api_key_secret: '%env(string: KRAKEN_FUTURES_API_KEY_SECRET)%'
+
 services:
     _defaults:
         autowire: true
         autoconfigure: true
+        bind:
+            $bybitRestApiError: '%bybit_rest_api_error%'
+            $bitgetRestApiError: '%bitget_rest_api_error%'
+            $bybitApiKey: '%bybit_api_key%'
+            $bybitApiKeySecret: '%bybit_api_key_secret%'
+
 
     App\Tests\Acceptance\Context\:
         resource: '../tests/Acceptance/Context/*'

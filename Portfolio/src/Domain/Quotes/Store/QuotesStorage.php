@@ -6,5 +6,4 @@ namespace App\Domain\Quotes\Store;
 
 interface QuotesStorage
 {
-
 }

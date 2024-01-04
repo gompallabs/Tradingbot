@@ -9,5 +9,4 @@ namespace App\Domain\Quotes\Quote;
  *  */
 class Quote
 {
-
 }

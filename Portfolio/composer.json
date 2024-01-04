@@ -7,18 +7,30 @@
         "php": ">=8.1.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "doctrine/doctrine-bundle": "^2.11",
+        "doctrine/doctrine-migrations-bundle": "^3.3",
+        "doctrine/orm": "^2.17",
         "symfony/console": "6.0.*",
+        "symfony/css-selector": "6.0.*",
+        "symfony/dom-crawler": "6.0.*",
         "symfony/dotenv": "6.0.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "6.0.*",
         "symfony/http-client": "6.0.*",
+        "symfony/messenger": "6.0.*",
         "symfony/runtime": "6.0.*",
+        "symfony/string": "6.0.*",
+        "symfony/uid": "6.0.*",
         "symfony/yaml": "6.0.*"
     },
     "require-dev": {
+        "ext-dom": "*",
         "behat/behat": "^3.13",
         "friends-of-behat/symfony-extension": "^2.2",
-        "phpunit/phpunit": "^10.5"
+        "friendsofphp/php-cs-fixer": "^3.41",
+        "phpunit/phpunit": "^10.5",
+        "symfony/monolog-bundle": "^3.10",
+        "symfony/process": "6.1.*"
     },
     "config": {
         "allow-plugins": {
@@ -68,7 +80,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "6.0.*"
+            "require": "6.1.*"
         }
     }
 }
