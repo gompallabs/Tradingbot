@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Infra\Source;
+namespace App\Infra\Source\Source;
 
 use App\Domain\Source\Api\SourceApiType;
 use App\Domain\Source\Source;
@@ -25,6 +25,8 @@ class BybitApiSource implements Source
 
     public static function ofType(string $type): self
     {
-        return new self(SourceApiType::tryFrom($type));
+        return new self(SourceApiType::tryFrom(
+            trim(Ucfirst($type))
+        ));
     }
 }

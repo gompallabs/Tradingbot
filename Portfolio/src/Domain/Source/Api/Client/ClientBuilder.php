@@ -6,5 +6,5 @@ use App\Domain\Source\Source;
 
 interface ClientBuilder
 {
-    public function getClientForApi(Source $source): ApiClient;
+    public function getClientForSource(Source $source): ApiClient;
 }

@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace App\Tests\Acceptance\Context;
 
+use App\Domain\Source\Api\Client\RestApiClient;
 use App\Domain\Source\Api\Orm\Doctrine\ApiErrorCodesRepositoryInterface;
+use App\Domain\Source\Source;
 use App\Domain\Storage\Orm\Doctrine\StorageRepositoryInterface;
-use App\Infra\Source\ApiClient\Client\Rest\BitgetRestClient;
-use App\Infra\Source\ApiClient\ClientBuilder\BitgetRestClientBuilder;
-use App\Infra\Source\BitgetApiSource;
+use App\Infra\Source\ApiClient\ClientBuilder\RestClientBuilder;
+use App\Infra\Source\ApiClient\ClientBuilder\RestClientCredentials;
+use App\Infra\Source\ApiClient\RestClientsList;
+use App\Infra\Source\Source\BinanceApiSource;
+use App\Infra\Source\Source\BitgetApiSource;
+use App\Infra\Source\Source\BybitApiSource;
+use App\Infra\Source\Source\CoinbaseApiSource;
+use App\Infra\Source\Source\KrakenApiSource;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Tester\Exception\PendingException;
 use function PHPUnit\Framework\assertGreaterThan;
@@ -19,33 +26,42 @@ class RepositoryContext implements Context
 {
     private StorageRepositoryInterface $assetRepositoryRepository;
     private ApiErrorCodesRepositoryInterface $errorCodesRepository;
-    private string $bybitRestApiError;
-    private string $bitgetRestApiError;
     private string $html;
     private array $errorCodes;
-    private string $bybitApiKey;
-    private string $bybitApiKeySecret;
 
-    private BitgetRestClientBuilder $bitGetRestClientBuilder;
-
-    private BitgetRestClient $bitGetRestClient;
+    private RestApiClient $client;
+    private RestClientCredentials $clientsCredentials;
+    private RestClientBuilder $restClientBuilder;
 
     public function __construct(
-        BitgetRestClientBuilder          $bitGetRestClientBuilder,
         StorageRepositoryInterface       $assetRepositoryRepository,
         ApiErrorCodesRepositoryInterface $errorCodesRepository,
-        string                           $bybitRestApiError,
-        string                           $bitgetRestApiError,
-        string                           $bybitApiKey,
-        string                           $bybitApiKeySecret
+        RestClientCredentials            $clientsCredentials,
+        RestClientBuilder                $restClientBuilder
     ) {
-        $this->bitGetRestClientBuilder = $bitGetRestClientBuilder;
         $this->assetRepositoryRepository = $assetRepositoryRepository;
         $this->errorCodesRepository = $errorCodesRepository;
-        $this->bybitRestApiError = $bybitRestApiError;
-        $this->bitgetRestApiError = $bitgetRestApiError;
-        $this->bybitApiKey = $bybitApiKey;
-        $this->bybitApiKeySecret = $bybitApiKeySecret;
+        $this->clientsCredentials = $clientsCredentials;
+        $this->restClientBuilder = $restClientBuilder;
+    }
+
+    private function getSource(string $name): Source
+    {
+        return match($name){
+            'binance' => BinanceApiSource::ofType('rest'),
+            'bitget' => BitgetApiSource::ofType('rest'),
+            'bybit' => BybitApiSource::ofType('rest'),
+            'coinbase' => CoinbaseApiSource::ofType('rest'),
+            'kraken' => KrakenApiSource::ofType('rest'),
+            default => Throw new \RuntimeException(
+                sprintf('unsupported provider %s in %s', $name, __CLASS__)
+            )
+        };
+    }
+
+    private function getApiKeys(string $name): array
+    {
+        return $this->clientsCredentials->getCredentials($this->getSource($name));
     }
 
     /**
@@ -53,8 +69,10 @@ class RepositoryContext implements Context
      */
     public function iHaveAReadOnlyApiKeyFor($arg1)
     {
-        $apiKey = $this->bybitApiKey;
-        assertGreaterThan(0, strlen($apiKey));
+        $apiKey = $this->clientsCredentials->getCredentials(
+            $this->getSource($arg1)
+        );
+        assertGreaterThan(0, strlen($apiKey[0]['api_key']));
     }
 
     /**
@@ -62,7 +80,8 @@ class RepositoryContext implements Context
      */
     public function iHaveASecretForApiKeyOf($arg1)
     {
-        $apiKeySecret = $this->bybitApiKeySecret;
+        $keys = $this->getApiKeys($arg1);
+        $apiKeySecret = $keys[1]['api_key_secret'];
         assertGreaterThan(0, strlen($apiKeySecret));
     }
 
@@ -71,10 +90,10 @@ class RepositoryContext implements Context
      */
     public function iInstanciateARestApiClientFor($arg1)
     {
-        $bitgetSource = BitgetApiSource::type('rest');
-        $client = $this->bitGetRestClientBuilder->getClientForApi(source: $bitgetSource);
-        assertInstanceOf(BitgetRestClient::class, $client);
-        $this->bitGetRestClient = $client;
+        $source = $this->getSource($arg1);
+        $client = $this->restClientBuilder->getClientForSource($source);
+        assertInstanceOf(RestApiClient::class, $client);
+        $this->client = $client;
     }
 
     /**
@@ -82,7 +101,7 @@ class RepositoryContext implements Context
      */
     public function iShoudHaveAClientWithCredentials()
     {
-        assertTrue($this->bitGetRestClient->hasCredentials());
+        assertTrue($this->client->hasCredentials());
     }
 
     /**
@@ -90,6 +109,6 @@ class RepositoryContext implements Context
      */
     public function shouldBeAbleToSignMyRequestsToTheApiFollowingDocumentation($arg1)
     {
-        throw new PendingException();
+
     }
 }
