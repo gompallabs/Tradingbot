@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace App\Tests\Acceptance\Context;
 
+use App\Domain\Source\Api\Client\RestApiClient;
 use App\Domain\Source\Api\SourceApiType;
 use App\Domain\Storage\Orm\Doctrine\StorageRepositoryInterface;
 use App\Domain\Storage\Storage;
 use App\Infra\Quote\ApiClient\RestClient;
-use App\Infra\Source\ApiClient\ClientBuilder\BitgetRestClientBuilder;
-use App\Infra\Source\ApiClient\ClientBuilder\BybitRestClientBuilder;
-use App\Infra\Source\BitgetApiSource;
-use App\Infra\Source\BybitApiSource;
+use App\Infra\Source\ApiClient\ClientBuilder\RestClientBuilder;
+use App\Infra\Source\Source\BinanceApiSource;
+use App\Infra\Source\Source\BitgetApiSource;
+use App\Infra\Source\Source\BybitApiSource;
+use App\Infra\Source\Source\CoinbaseApiSource;
+use App\Infra\Source\Source\KrakenApiSource;
 use App\Infra\Storage\CryptoExchange;
 use Behat\Behat\Context\Context;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\RouterInterface;
-
 use function PHPUnit\Framework\assertInstanceOf;
 use function PHPUnit\Framework\assertLessThan;
 use function PHPUnit\Framework\assertNotNull;
@@ -25,20 +27,17 @@ final class InitContext implements Context
 {
     private ?float $startTime = null;
     private RouterInterface $router;
-    private BitgetRestClientBuilder $bitGetRestClientBuilder;
     private StorageRepositoryInterface $storageRepository;
-    private BybitRestClientBuilder $bybitRestClientBuilder;
+    private RestClientBuilder $restClientBuilder;
 
     public function __construct(
         StorageRepositoryInterface $storageRepository,
         RouterInterface            $router,
-        BitgetRestClientBuilder    $bitGetRestClientBuilder,
-        BybitRestClientBuilder $bybitRestClientBuilder
+        RestClientBuilder $restClientBuilder
     ) {
         $this->storageRepository = $storageRepository;
         $this->router = $router;
-        $this->bitGetRestClientBuilder = $bitGetRestClientBuilder;
-        $this->bybitRestClientBuilder = $bybitRestClientBuilder;
+        $this->restClientBuilder = $restClientBuilder;
     }
 
     /**
@@ -67,34 +66,33 @@ final class InitContext implements Context
      */
     public function iRequestTheRestEndpointOfToCheckIfMyConnexionIsAliveAndMyComputerIsSync($arg1, $arg2)
     {
-        try {
-            $route = $this->router->generate(sprintf('%s_server_time', $arg2));
-        } catch (RouteNotFoundException $exception) {
-            throw new \Exception(sprintf('Route not found. %s', $exception->getMessage()));
-        }
-
         $this->startTime = floor(microtime(true) * 1000);
-        switch($arg2){
-            case 'bitget':
 
-                $restClient = $this->bitGetRestClientBuilder->getClientForApi(
-                    BitgetApiSource::ofType(SourceApiType::Rest->value)
-                );
-                assertInstanceOf(RestClient::class, $restClient);
-                $time = $restClient->getServerTime();
+        switch($arg2){
+            case 'binance':
+                $source = BinanceApiSource::ofType(SourceApiType::Rest->value);
+                break;
+            case 'bitget':
+                $source = BitgetApiSource::ofType(SourceApiType::Rest->value);
                 break;
             case 'bybit':
-                $restClient = $this->bybitRestClientBuilder->getClientForApi(
-                    BybitApiSource::ofType(SourceApiType::Rest->value)
-                );
-                assertInstanceOf(RestClient::class, $restClient);
-                $time = $restClient->getServerTime();
+                $source = BybitApiSource::ofType(SourceApiType::Rest->value);
+                break;
+            case 'coinbase':
+                $source = CoinbaseApiSource::ofType(SourceApiType::Rest->value);
+                break;
+            case 'kraken':
+                $source = KrakenApiSource::ofType(SourceApiType::Rest->value);
                 break;
             default:
                 throw new \LogicException(sprintf("missing provider %s", $arg2)." in ".__CLASS__);
         }
 
+        $restClient = $this->restClientBuilder->getClientForSource($source);
+        assertInstanceOf(RestApiClient::class, $restClient);
+        $time = $restClient->getServerTime();
+
         assertNotNull($time);
-        assertLessThan(500,$time - $this->startTime); // bybit often have weird timings
+        assertLessThan(1000,$time - $this->startTime); // bybit often have weird timings
     }
 }

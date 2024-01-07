@@ -6,64 +6,60 @@ namespace App\Infra\Source\ApiClient\ClientBuilder;
 
 use App\Domain\Source\Api\Client\ApiClient;
 use App\Domain\Source\Api\Client\ClientBuilder;
+use App\Domain\Source\Api\Client\HttpClientRegistry;
+use App\Domain\Source\Api\Client\RestApiClient;
 use App\Domain\Source\Source;
-use App\Infra\Source\ApiClient\Client\Rest\ClientList;
+use App\Infra\Source\ApiClient\Client\Http\Rest\RestClientList;
+use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class RestClientBuilder implements ClientBuilder
 {
-    private RouterInterface $router;
-
-    private Source $source;
     private HttpClientRegistry $httpClientRegistry;
-    private ApiCredentials $apiCredentials;
+    private RouterInterface $router;
+    private RestClientCredentials $clientsCredentials;
+    private RestRouteLoader $routeLoader;
+    private UrlGeneratorInterface $urlGenerator;
+
 
     public function __construct(
-        ApiCredentials $apiCredentials,
-        HttpClientRegistry $httpClientRegistry,
-        RouterInterface $router,
-
+        HttpClientRegistry    $httpClientRegistry,
+        RestClientCredentials $clientsCredentials,
+        RestRouteLoader       $routeLoader,
     ) {
-        $this->apiCredentials = $apiCredentials;
         $this->httpClientRegistry = $httpClientRegistry;
-        $this->router = $router;
+        $this->clientsCredentials = $clientsCredentials;
+        $this->routeLoader = $routeLoader;
     }
 
-    public function getClientForApi(Source $source): ApiClient
+    public function getClientForSource(Source $source): ApiClient
     {
-        $clientName = ClientList::tryFrom($source->getName());
-        $client = new $clientName(
-            $this->getHttpClient(),
-            $this->getRouteCollection()
+        $routes = $this->routeLoader->getRoutesForSource($source);
+        $clientClass = match($source->getName()){
+            'binance' => RestClientList::binance->value,
+            'bitget' => RestClientList::bitget->value,
+            'bybit' => RestClientList::bybit->value,
+            'coinbase' => RestClientList::coinbase->value,
+            'kraken' => RestClientList::kraken->value,
+        };
+
+        return new $clientClass(
+            $this->httpClientRegistry->getHttpClientFor($source),
+            new UrlGenerator(
+                routes: $routes,
+                context: new RequestContext()
+            ),
         );
     }
 
-//HttpClientInterface $bitgetClient,
-//UrlGeneratorInterface $urlGenerator,
-//?string $apiKey = null,
-//?string $apiKeySecret = null
-
-    private function getRouteCollection(): RouteCollection
+    public function setClientCredentials(RestApiClient $client, Source $source): RestApiClient
     {
-        $collection = $this->router->getRouteCollection();
-        $subCollection = new RouteCollection();
-        foreach ($collection as $routes){
-            if($this->source->getName() === $routes['name']){
-                $subCollection->add($routes['name']);
-            }
-        }
-        return $subCollection;
-    }
-
-    private function getHttpClient(): HttpClientInterface
-    {
-        return $this->httpClientRegistry->getClientForSource($this->source);
-    }
-
-    private function getApiCredentials(): array
-    {
-        return $this->apiCredentials->getCredentialsForSource($this->source);
+        $credentials = $this->clientsCredentials->getCredentials($source);
+        $client->setApiKey($credentials[0]['api_key']);
+        $client->setApiKeySecret($credentials[1]['api_key_secret']);
+        return $client;
     }
 }

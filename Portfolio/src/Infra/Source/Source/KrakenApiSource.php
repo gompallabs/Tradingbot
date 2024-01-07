@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
-namespace App\Infra\Source;
+namespace App\Infra\Source\Source;
 
 use App\Domain\Source\Api\SourceApiType;
 use App\Domain\Source\Source;
 
-final class BitgetApiSource implements Source
+class KrakenApiSource implements Source
 {
-    public const NAME = 'bitget';
+    public const NAME = 'kraken';
 
     private ?SourceApiType $sourceApiType = null;
 
@@ -23,13 +21,10 @@ final class BitgetApiSource implements Source
         return self::NAME;
     }
 
-    public function getSourceApiType(): SourceApiType
-    {
-        return $this->sourceApiType;
-    }
-
     public static function ofType(string $type): self
     {
-        return new self(SourceApiType::tryFrom($type));
+        return new self(SourceApiType::tryFrom(
+            trim(Ucfirst($type))
+        ));
     }
 }
