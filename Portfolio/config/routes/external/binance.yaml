@@ -1,5 +1,10 @@
 server_time:
   path: /api/v3/time
-  methods: [GET]
+  methods: ['GET']
 
-
+wallet_balance:
+  path: /binancepay/openapi/balance
+  methods: ['POST']
+  requirements:
+    wallet: '\s+'
+    currency: '\s+'

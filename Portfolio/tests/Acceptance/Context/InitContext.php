@@ -55,10 +55,10 @@ final class InitContext implements Context
      */
     public function iHaveACryptoExchangeNamed($arg1)
     {
-        $repo = new CryptoExchange($arg1);
-        $this->storageRepository->save($repo);
-        $repository = $this->storageRepository->findOneBy(['name' => $arg1]);
-        assertInstanceOf(Storage::class, $repository);
+        $storage = new CryptoExchange($arg1);
+        $this->storageRepository->save($storage);
+        $dbStorage = $this->storageRepository->findOneBy(['name' => $arg1]);
+        assertInstanceOf(Storage::class, $dbStorage);
     }
 
     /**
@@ -88,7 +88,7 @@ final class InitContext implements Context
                 throw new \LogicException(sprintf("missing provider %s", $arg2)." in ".__CLASS__);
         }
 
-        $restClient = $this->restClientBuilder->getClientForSource($source);
+        $restClient = $this->restClientBuilder->getClientFor(source: $source, public: true);
         assertInstanceOf(RestApiClient::class, $restClient);
         $time = $restClient->getServerTime();
 

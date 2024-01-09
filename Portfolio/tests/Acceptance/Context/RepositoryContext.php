@@ -10,14 +10,12 @@ use App\Domain\Source\Source;
 use App\Domain\Storage\Orm\Doctrine\StorageRepositoryInterface;
 use App\Infra\Source\ApiClient\ClientBuilder\RestClientBuilder;
 use App\Infra\Source\ApiClient\ClientBuilder\RestClientCredentials;
-use App\Infra\Source\ApiClient\RestClientsList;
 use App\Infra\Source\Source\BinanceApiSource;
 use App\Infra\Source\Source\BitgetApiSource;
 use App\Infra\Source\Source\BybitApiSource;
 use App\Infra\Source\Source\CoinbaseApiSource;
 use App\Infra\Source\Source\KrakenApiSource;
 use Behat\Behat\Context\Context;
-use Behat\Behat\Tester\Exception\PendingException;
 use function PHPUnit\Framework\assertGreaterThan;
 use function PHPUnit\Framework\assertInstanceOf;
 use function PHPUnit\Framework\assertTrue;
@@ -26,9 +24,6 @@ class RepositoryContext implements Context
 {
     private StorageRepositoryInterface $assetRepositoryRepository;
     private ApiErrorCodesRepositoryInterface $errorCodesRepository;
-    private string $html;
-    private array $errorCodes;
-
     private RestApiClient $client;
     private RestClientCredentials $clientsCredentials;
     private RestClientBuilder $restClientBuilder;
@@ -91,7 +86,7 @@ class RepositoryContext implements Context
     public function iInstanciateARestApiClientFor($arg1)
     {
         $source = $this->getSource($arg1);
-        $client = $this->restClientBuilder->getClientForSource($source);
+        $client = $this->restClientBuilder->getClientFor(source: $source);
         assertInstanceOf(RestApiClient::class, $client);
         $this->client = $client;
     }
@@ -105,10 +100,11 @@ class RepositoryContext implements Context
     }
 
     /**
-     * @Then should be able to sign my :arg1 requests to the Api following documentation
+     * @Given I request account balance for :arg1
      */
-    public function shouldBeAbleToSignMyRequestsToTheApiFollowingDocumentation($arg1)
+    public function iRequestAccountBalanceFor($arg1)
     {
-
+        $response = $this->client->accountBalance();
+        dd($response);
     }
 }

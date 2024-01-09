@@ -19,10 +19,8 @@ use Symfony\Component\Routing\RouterInterface;
 class RestClientBuilder implements ClientBuilder
 {
     private HttpClientRegistry $httpClientRegistry;
-    private RouterInterface $router;
     private RestClientCredentials $clientsCredentials;
     private RestRouteLoader $routeLoader;
-    private UrlGeneratorInterface $urlGenerator;
 
 
     public function __construct(
@@ -35,7 +33,7 @@ class RestClientBuilder implements ClientBuilder
         $this->routeLoader = $routeLoader;
     }
 
-    public function getClientForSource(Source $source): ApiClient
+    public function getClientFor(Source $source, bool $public = false): RestApiClient
     {
         $routes = $this->routeLoader->getRoutesForSource($source);
         $clientClass = match($source->getName()){
@@ -46,13 +44,19 @@ class RestClientBuilder implements ClientBuilder
             'kraken' => RestClientList::kraken->value,
         };
 
-        return new $clientClass(
+        $publicClient = new $clientClass(
             $this->httpClientRegistry->getHttpClientFor($source),
             new UrlGenerator(
                 routes: $routes,
                 context: new RequestContext()
             ),
         );
+
+        if($public === false){
+            return $this->setClientCredentials($publicClient, $source);
+        }
+
+        return $publicClient;
     }
 
     public function setClientCredentials(RestApiClient $client, Source $source): RestApiClient

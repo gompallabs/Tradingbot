@@ -15,4 +15,6 @@ interface RestApiClient extends ApiClient, HttpClientInterface
     public function setApiKeySecret(?string $apiKeySecret): void;
 
     public function getServerTime(): int;
+
+    public function accountBalance();
 }

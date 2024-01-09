@@ -73,4 +73,9 @@ final class BitgetRestClient extends AssetStorageRestClient implements RestApiCl
 
         return (int) $response['data']['serverTime'];
     }
+
+    public function accountBalance()
+    {
+        // TODO: Implement accountBalance() method.
+    }
 }

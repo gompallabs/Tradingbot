@@ -65,4 +65,9 @@ class CoinbaseRestClient extends AssetStorageRestClient implements RestApiClient
         $response = json_decode($response->getContent(), true, JSON_PRETTY_PRINT);
         return (int) $response['data']['epoch'] * 1000;
     }
+
+    public function accountBalance()
+    {
+        // TODO: Implement accountBalance() method.
+    }
 }

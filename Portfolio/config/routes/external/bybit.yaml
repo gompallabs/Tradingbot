@@ -2,3 +2,12 @@ server_time:
   path: /v5/market/time
   methods: [GET]
 
+# https://bybit-exchange.github.io/docs/v5/account/wallet-balance
+wallet_balance:
+  path: /v5/account/wallet-balance
+  methods: [GET]
+  defaults:
+    coin: ""
+  requirements:
+    accountType: '\s+'
+    coin: '\s+'

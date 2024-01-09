@@ -66,4 +66,9 @@ class KrakenRestClient extends AssetStorageRestClient implements RestApiClient
 
         return (int) $response['result']['unixtime'] * 1000;
     }
+
+    public function accountBalance()
+    {
+        // TODO: Implement accountBalance() method.
+    }
 }
