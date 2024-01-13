@@ -9,5 +9,4 @@ enum RestClientList: string
     case bitget = BitgetRestClient::class;
     case coinbase = CoinbaseRestClient::class;
     case kraken = KrakenRestClient::class;
-
 }

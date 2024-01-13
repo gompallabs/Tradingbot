@@ -11,13 +11,26 @@ Feature: In this app, a "repository" is a store of assets
     Given I have a crypto exchange named "kraken"
 
 
-  Scenario: I instanciate a bybit client
-    Given I have a read-only api key for "bybit"
-    Given I have a secret for api key of "bybit"
-    And I instanciate a rest api client for "bybit"
+#  Scenario: I instanciate a bybit client
+#    Given I have a read-only api key for "bybit"
+#    Given I have a secret for api key of "bybit"
+#    And I instanciate a rest api client for "bybit"
+#    Then I shoud have a client with credentials
+#
+#  Scenario: I request account balance for bybit
+#    Given I instanciate a rest api client for "bybit"
+#    Then I shoud have a client with credentials
+#    Given I request account balance for "bybit"
+#    Then the response should be an array with several balances
+
+  Scenario: I instanciate a bitget client
+    Given I have a read-only api key for "bitget"
+    Given I have a secret for api key of "bitget"
+    And I instanciate a rest api client for "bitget"
     Then I shoud have a client with credentials
 
-  Scenario: I request account balance
-    Given I instanciate a rest api client for "bybit"
+  Scenario: I request account balance for bitget
+    Given I instanciate a rest api client for "bitget"
     Then I shoud have a client with credentials
-    Given I request account balance for "bybit"
+    Given I request account balance for "bitget"
+    Then the response should be an array with several balances

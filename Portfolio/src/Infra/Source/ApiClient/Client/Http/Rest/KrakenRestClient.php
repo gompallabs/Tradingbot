@@ -11,8 +11,9 @@ use Symfony\Contracts\HttpClient\ResponseStreamInterface;
 class KrakenRestClient extends AssetStorageRestClient implements RestApiClient
 {
     private HttpClientInterface $client;
-    private string $apiKey;
-    private string $apiKeySecret;
+    private ?string $apiKey;
+    private ?string $apiKeySecret;
+    private ?string $apiKeyPassphrase = null;
 
     public function __construct(
         HttpClientInterface $client,
@@ -42,7 +43,6 @@ class KrakenRestClient extends AssetStorageRestClient implements RestApiClient
         // TODO: Implement hasCredentials() method.
     }
 
-
     public function setApiKey(?string $apiKey): void
     {
         $this->apiKey = $apiKey;
@@ -67,7 +67,12 @@ class KrakenRestClient extends AssetStorageRestClient implements RestApiClient
         return (int) $response['result']['unixtime'] * 1000;
     }
 
-    public function accountBalance()
+    public function setApiKeyPassphrase(?string $apiKeyPassphrase): void
+    {
+        $this->apiKeyPassphrase = $apiKeyPassphrase;
+    }
+
+    public function accountBalance(array $options)
     {
         // TODO: Implement accountBalance() method.
     }

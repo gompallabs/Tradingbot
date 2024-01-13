@@ -2,6 +2,7 @@ server_time:
   path: /v5/market/time
   methods: [GET]
 
+# wallet_balance is the global list of all assets
 # https://bybit-exchange.github.io/docs/v5/account/wallet-balance
 wallet_balance:
   path: /v5/account/wallet-balance
@@ -9,5 +10,5 @@ wallet_balance:
   defaults:
     coin: ""
   requirements:
-    accountType: '\s+'
-    coin: '\s+'
+    accountType: \s+
+    coin: \s+

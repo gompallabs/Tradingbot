@@ -6,20 +6,26 @@ namespace App\Infra\Source\ApiClient\Client\Http\Rest;
 
 use App\Domain\Source\Api\Client\RestApiClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\ResponseStreamInterface;
 
 class BybitRestClient extends AssetStorageRestClient implements RestApiClient
 {
-    const BYBIT_ACCOUNT_TYPE = [
+    public const BYBIT_ACCOUNT_TYPE = [
         'UNIFIED' => 'UNIFIED',
-        'CONTRACT' => 'CONTRACT' // trade inverse
+        'CONTRACT' => 'CONTRACT', // trade inverse
     ];
 
     private HttpClientInterface $client;
     private ?string $apiKey = null;
     private ?string $apiKeySecret = null;
+
+    private ?string $apiKeyPassphrase = null;
 
     public function __construct(
         HttpClientInterface $client,
@@ -44,6 +50,7 @@ class BybitRestClient extends AssetStorageRestClient implements RestApiClient
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
         $headers = $this->getEncryptedHeaders($url);
+
         return $this->client->request(
             method: 'GET',
             url: $url,
@@ -70,20 +77,10 @@ class BybitRestClient extends AssetStorageRestClient implements RestApiClient
 
     private function signature($params, $timestamp): string
     {
+        $receiveWindow = '5000';
+        $signatureParameters = $timestamp.$this->apiKey.$receiveWindow.$params;
 
-        $receiveWindow = "5000";
-        $signatureParameters = $timestamp . $this->apiKey . $receiveWindow . $params;
         return hash_hmac('sha256', $signatureParameters, $this->apiKeySecret);
-    }
-
-    public function stream(iterable|ResponseInterface $responses, float $timeout = null): ResponseStreamInterface
-    {
-        // TODO: Implement stream() method.
-    }
-
-    public function withOptions(array $options): static
-    {
-        // TODO: Implement withOptions() method.
     }
 
     public function getServerTime(): int
@@ -96,10 +93,17 @@ class BybitRestClient extends AssetStorageRestClient implements RestApiClient
         );
 
         $response = json_decode($response->getContent(), true, JSON_PRETTY_PRINT);
-        return (int)((int) $response['result']['timeNano'] / 1000000);
+
+        return (int) ((int) $response['result']['timeNano'] / 1000000);
     }
 
-    public function accountBalance()
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function accountBalance(array $options)
     {
         $url = $this->urlGenerator->generate('wallet_balance',
             ['accountType' => self::BYBIT_ACCOUNT_TYPE['UNIFIED']]
@@ -113,7 +117,6 @@ class BybitRestClient extends AssetStorageRestClient implements RestApiClient
         return json_decode($response->getContent(), true, JSON_PRETTY_PRINT);
     }
 
-
     public function setApiKey(?string $apiKey): void
     {
         $this->apiKey = $apiKey;
@@ -122,5 +125,20 @@ class BybitRestClient extends AssetStorageRestClient implements RestApiClient
     public function setApiKeySecret(?string $apiKeySecret): void
     {
         $this->apiKeySecret = $apiKeySecret;
+    }
+
+    public function setApiKeyPassphrase(?string $apiKeyPassphrase): void
+    {
+        $this->apiKeyPassphrase = $apiKeyPassphrase;
+    }
+
+    public function stream(iterable|ResponseInterface $responses, float $timeout = null): ResponseStreamInterface
+    {
+        // TODO: Implement stream() method.
+    }
+
+    public function withOptions(array $options): static
+    {
+        // TODO: Implement withOptions() method.
     }
 }

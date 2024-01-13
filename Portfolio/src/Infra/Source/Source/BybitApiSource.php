@@ -26,7 +26,7 @@ class BybitApiSource implements Source
     public static function ofType(string $type): self
     {
         return new self(SourceApiType::tryFrom(
-            trim(Ucfirst($type))
+            trim(ucfirst($type))
         ));
     }
 }

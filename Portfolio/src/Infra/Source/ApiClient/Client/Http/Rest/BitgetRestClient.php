@@ -15,6 +15,7 @@ final class BitgetRestClient extends AssetStorageRestClient implements RestApiCl
     private HttpClientInterface $client;
     private ?string $apiKey = null;
     private ?string $apiKeySecret = null;
+    private ?string $apiKeyPassphrase = null;
 
     public function __construct(
         HttpClientInterface $client,
@@ -24,7 +25,6 @@ final class BitgetRestClient extends AssetStorageRestClient implements RestApiCl
         $this->client = $client;
     }
 
-
     public function hasCredentials(): bool
     {
         return ($this->apiKey !== null)
@@ -33,10 +33,49 @@ final class BitgetRestClient extends AssetStorageRestClient implements RestApiCl
             && strlen($this->apiKeySecret) > 0;
     }
 
-
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
-        // TODO: Implement request() method.
+        $headers = $this->getEncryptedHeaders($url, $method);
+
+        return $this->client->request(
+            method: 'GET',
+            url: $url,
+            options: $headers
+        );
+    }
+
+    private function getEncryptedHeaders(string $url, string $method, string $body = null): array
+    {
+        $timestamp = time() * 1000;
+        $signature = $this->signature(
+            timestamp: $timestamp,
+            method: $method,
+            url: $url,
+        );
+
+        $headers = [
+            'headers' => [
+                'ACCESS-KEY' => $this->apiKey,
+                'ACCESS-SIGN' => $signature,
+                'ACCESS-TIMESTAMP' => $timestamp,
+                'ACCESS-PASSPHRASE' => $this->apiKeyPassphrase,
+                'locale' => 'en-US',
+                'timeout' => 60,
+            ],
+        ];
+
+        return $headers;
+    }
+
+    private function signature(int $timestamp, string $method, string $url, string $body = null): string
+    {
+        return base64_encode(hash_hmac(
+            'sha256',
+            trim((string) $timestamp.strtoupper($method).$url.(string) $body),
+            $this->apiKeySecret,
+            true
+        )
+        );
     }
 
     public function stream(iterable|ResponseInterface $responses, float $timeout = null): ResponseStreamInterface
@@ -48,7 +87,6 @@ final class BitgetRestClient extends AssetStorageRestClient implements RestApiCl
     {
         // TODO: Implement withOptions() method.
     }
-
 
     public function setApiKey(?string $apiKey): void
     {
@@ -74,8 +112,21 @@ final class BitgetRestClient extends AssetStorageRestClient implements RestApiCl
         return (int) $response['data']['serverTime'];
     }
 
-    public function accountBalance()
+    public function accountBalance(array $options)
     {
-        // TODO: Implement accountBalance() method.
+        $url = $this->urlGenerator->generate('wallet_balance', $options);
+        $response = $this->request(
+            method: 'GET',
+            url: $url
+        );
+
+        $data = json_decode($response->getContent(), true, JSON_PRETTY_PRINT);
+
+        return $data['data'][0];
+    }
+
+    public function setApiKeyPassphrase(?string $apiKeyPassphrase): void
+    {
+        $this->apiKeyPassphrase = $apiKeyPassphrase;
     }
 }

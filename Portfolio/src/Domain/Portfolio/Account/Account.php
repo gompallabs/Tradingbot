@@ -19,5 +19,4 @@ interface Account
     public function getBalance();
 
     public function getTransactions();
-
 }

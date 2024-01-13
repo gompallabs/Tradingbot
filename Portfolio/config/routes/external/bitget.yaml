@@ -1,3 +1,11 @@
 server_time:
-  path: /api/v2/public/time
+  path:  /api/v2/public/time
   methods: [GET]
+
+# wallet_balance is the global list of all assets
+# https://bitgetlimited.github.io/apidoc/en/mix/#get-account-list
+wallet_balance:
+  path: /api/v2/mix/account/accounts
+  methods: [GET]
+  requirements:
+    productType: \s+

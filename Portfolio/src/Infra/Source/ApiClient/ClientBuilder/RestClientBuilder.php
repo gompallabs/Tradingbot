@@ -4,17 +4,13 @@ declare(strict_types=1);
 
 namespace App\Infra\Source\ApiClient\ClientBuilder;
 
-use App\Domain\Source\Api\Client\ApiClient;
 use App\Domain\Source\Api\Client\ClientBuilder;
 use App\Domain\Source\Api\Client\HttpClientRegistry;
 use App\Domain\Source\Api\Client\RestApiClient;
 use App\Domain\Source\Source;
 use App\Infra\Source\ApiClient\Client\Http\Rest\RestClientList;
 use Symfony\Component\Routing\Generator\UrlGenerator;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\RouterInterface;
 
 class RestClientBuilder implements ClientBuilder
 {
@@ -22,11 +18,10 @@ class RestClientBuilder implements ClientBuilder
     private RestClientCredentials $clientsCredentials;
     private RestRouteLoader $routeLoader;
 
-
     public function __construct(
-        HttpClientRegistry    $httpClientRegistry,
+        HttpClientRegistry $httpClientRegistry,
         RestClientCredentials $clientsCredentials,
-        RestRouteLoader       $routeLoader,
+        RestRouteLoader $routeLoader,
     ) {
         $this->httpClientRegistry = $httpClientRegistry;
         $this->clientsCredentials = $clientsCredentials;
@@ -36,7 +31,7 @@ class RestClientBuilder implements ClientBuilder
     public function getClientFor(Source $source, bool $public = false): RestApiClient
     {
         $routes = $this->routeLoader->getRoutesForSource($source);
-        $clientClass = match($source->getName()){
+        $clientClass = match ($source->getName()) {
             'binance' => RestClientList::binance->value,
             'bitget' => RestClientList::bitget->value,
             'bybit' => RestClientList::bybit->value,
@@ -52,7 +47,7 @@ class RestClientBuilder implements ClientBuilder
             ),
         );
 
-        if($public === false){
+        if ($public === false) {
             return $this->setClientCredentials($publicClient, $source);
         }
 
@@ -62,8 +57,12 @@ class RestClientBuilder implements ClientBuilder
     public function setClientCredentials(RestApiClient $client, Source $source): RestApiClient
     {
         $credentials = $this->clientsCredentials->getCredentials($source);
-        $client->setApiKey($credentials[0]['api_key']);
-        $client->setApiKeySecret($credentials[1]['api_key_secret']);
+        $client->setApiKey($credentials['api_key']);
+        $client->setApiKeySecret($credentials['api_key_secret']);
+        if (count($credentials) > 2) {
+            $client->setApiKeyPassphrase($credentials['api_key_passphrase']);
+        }
+
         return $client;
     }
 }

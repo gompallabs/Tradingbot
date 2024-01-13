@@ -11,8 +11,9 @@ use Symfony\Contracts\HttpClient\ResponseStreamInterface;
 class CoinbaseRestClient extends AssetStorageRestClient implements RestApiClient
 {
     private HttpClientInterface $client;
-    private string $apiKey;
-    private string $apiKeySecret;
+    private ?string $apiKey;
+    private ?string $apiKeySecret;
+    private ?string $apiKeyPassphrase = null;
 
     public function __construct(
         HttpClientInterface $client,
@@ -42,7 +43,6 @@ class CoinbaseRestClient extends AssetStorageRestClient implements RestApiClient
         // TODO: Implement hasCredentials() method.
     }
 
-
     public function setApiKey(?string $apiKey): void
     {
         $this->apiKey = $apiKey;
@@ -63,10 +63,16 @@ class CoinbaseRestClient extends AssetStorageRestClient implements RestApiClient
         );
 
         $response = json_decode($response->getContent(), true, JSON_PRETTY_PRINT);
+
         return (int) $response['data']['epoch'] * 1000;
     }
 
-    public function accountBalance()
+    public function setApiKeyPassphrase(?string $apiKeyPassphrase): void
+    {
+        $this->apiKeyPassphrase = $apiKeyPassphrase;
+    }
+
+    public function accountBalance(array $options)
     {
         // TODO: Implement accountBalance() method.
     }

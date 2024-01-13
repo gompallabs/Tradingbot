@@ -8,7 +8,6 @@ use App\Domain\Source\Api\Client\RestApiClient;
 use App\Domain\Source\Api\SourceApiType;
 use App\Domain\Storage\Orm\Doctrine\StorageRepositoryInterface;
 use App\Domain\Storage\Storage;
-use App\Infra\Quote\ApiClient\RestClient;
 use App\Infra\Source\ApiClient\ClientBuilder\RestClientBuilder;
 use App\Infra\Source\Source\BinanceApiSource;
 use App\Infra\Source\Source\BitgetApiSource;
@@ -17,8 +16,8 @@ use App\Infra\Source\Source\CoinbaseApiSource;
 use App\Infra\Source\Source\KrakenApiSource;
 use App\Infra\Storage\CryptoExchange;
 use Behat\Behat\Context\Context;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\RouterInterface;
+
 use function PHPUnit\Framework\assertInstanceOf;
 use function PHPUnit\Framework\assertLessThan;
 use function PHPUnit\Framework\assertNotNull;
@@ -32,7 +31,7 @@ final class InitContext implements Context
 
     public function __construct(
         StorageRepositoryInterface $storageRepository,
-        RouterInterface            $router,
+        RouterInterface $router,
         RestClientBuilder $restClientBuilder
     ) {
         $this->storageRepository = $storageRepository;
@@ -68,7 +67,7 @@ final class InitContext implements Context
     {
         $this->startTime = floor(microtime(true) * 1000);
 
-        switch($arg2){
+        switch ($arg2) {
             case 'binance':
                 $source = BinanceApiSource::ofType(SourceApiType::Rest->value);
                 break;
@@ -85,7 +84,7 @@ final class InitContext implements Context
                 $source = KrakenApiSource::ofType(SourceApiType::Rest->value);
                 break;
             default:
-                throw new \LogicException(sprintf("missing provider %s", $arg2)." in ".__CLASS__);
+                throw new \LogicException(sprintf('missing provider %s', $arg2).' in '.__CLASS__);
         }
 
         $restClient = $this->restClientBuilder->getClientFor(source: $source, public: true);
@@ -93,6 +92,6 @@ final class InitContext implements Context
         $time = $restClient->getServerTime();
 
         assertNotNull($time);
-        assertLessThan(1000,$time - $this->startTime); // bybit often have weird timings
+        assertLessThan(1000, $time - $this->startTime); // bybit often have weird timings
     }
 }

@@ -3,6 +3,7 @@ parameters:
     binance_api_key_secret: '%env(string:BINANCE_API_KEY_SECRET)%'
     bitget_api_key: '%env(string:BITGET_API_KEY)%'
     bitget_api_key_secret: '%env(string:BITGET_API_KEY_SECRET)%'
+    bitget_api_key_passphrase: '%env(BITGET_API_KEY_PASSPHRASE)%'
     bybit_api_key: '%env(string:BYBIT_API_KEY)%'
     bybit_api_key_secret: '%env(string:BYBIT_API_KEY_SECRET)%'
     coinbase_api_key: '%env(string:COINBASE_API_KEY)%'
@@ -35,7 +36,7 @@ services:
         arguments:
             -
                 binance:   [api_key: '%binance_api_key%', api_key_secret: '%binance_api_key_secret%']
-                bitget:   [api_key: '%bitget_api_key%', api_key_secret: '%bitget_api_key_secret%']
+                bitget:   [api_key: '%bitget_api_key%', api_key_secret: '%bitget_api_key_secret%', api_key_passphrase: '%bitget_api_key_passphrase%']
                 bybit:    [api_key: '%bybit_api_key%', api_key_secret: '%bybit_api_key_secret%']
                 coinbase:    [api_key: '%coinbase_api_key%', api_key_secret: '%coinbase_api_key_secret%']
                 kraken_spot:    [api_key: '%kraken_spot_api_key%', api_key_secret: '%kraken_spot_api_key_secret%']
