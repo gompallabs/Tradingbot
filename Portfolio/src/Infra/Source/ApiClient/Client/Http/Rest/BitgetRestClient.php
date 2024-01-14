@@ -38,7 +38,7 @@ final class BitgetRestClient extends AssetStorageRestClient implements RestApiCl
         $headers = $this->getEncryptedHeaders($url, $method);
 
         return $this->client->request(
-            method: 'GET',
+            method: $method,
             url: $url,
             options: $headers
         );
@@ -112,7 +112,7 @@ final class BitgetRestClient extends AssetStorageRestClient implements RestApiCl
         return (int) $response['data']['serverTime'];
     }
 
-    public function accountBalance(array $options)
+    public function accountBalance(array $options = null)
     {
         $url = $this->urlGenerator->generate('wallet_balance', $options);
         $response = $this->request(

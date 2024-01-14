@@ -18,5 +18,5 @@ interface RestApiClient extends ApiClient, HttpClientInterface
 
     public function getServerTime(): int;
 
-    public function accountBalance(array $options);
+    public function accountBalance(array $options = null);
 }

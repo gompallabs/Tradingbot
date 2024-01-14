@@ -12,18 +12,16 @@ use App\Infra\Source\ApiClient\Client\Http\Rest\BitgetRestClient;
 use App\Infra\Source\ApiClient\Client\Http\Rest\BybitRestClient;
 use App\Infra\Source\ApiClient\ClientBuilder\RestClientBuilder;
 use App\Infra\Source\ApiClient\ClientBuilder\RestClientCredentials;
-use App\Infra\Source\Source\BinanceApiSource;
 use App\Infra\Source\Source\BitgetApiSource;
 use App\Infra\Source\Source\BybitApiSource;
-use App\Infra\Source\Source\CoinbaseApiSource;
 use App\Infra\Source\Source\JupiterApiSource;
-use App\Infra\Source\Source\KrakenApiSource;
 use Behat\Behat\Context\Context;
 
 use function PHPUnit\Framework\assertArrayHasKey;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertGreaterThan;
 use function PHPUnit\Framework\assertInstanceOf;
+use function PHPUnit\Framework\assertNotEmpty;
 use function PHPUnit\Framework\assertTrue;
 
 class RepositoryContext implements Context
@@ -53,12 +51,9 @@ class RepositoryContext implements Context
     private function getSource(string $name): Source
     {
         return match ($name) {
-            'binance' => BinanceApiSource::ofType('rest'),
             'bitget' => BitgetApiSource::ofType('rest'),
             'bybit' => BybitApiSource::ofType('rest'),
-            'coinbase' => CoinbaseApiSource::ofType('rest'),
             'jupiter' => JupiterApiSource::ofType('rest'),
-            'kraken' => KrakenApiSource::ofType('rest'),
             default => throw new \RuntimeException(sprintf('unsupported provider %s in %s', $name, __CLASS__))
         };
     }
@@ -117,16 +112,20 @@ class RepositoryContext implements Context
         switch ($this->provider) {
             case 'bybit':
                 assertInstanceOf(BybitRestClient::class, $this->client);
+                $this->response = $this->client->accountBalance([
+                    'coin' => 'USDT',
+                ]);
+                assertNotEmpty($this->response);
                 break;
             case 'bitget':
                 assertInstanceOf(BitgetRestClient::class, $this->client);
+                $balance = $this->client->accountBalance(['productType' => 'USDT-FUTURES']);
+                assertArrayHasKey('marginCoin', $balance);
+                assertEquals('USDT', $balance['marginCoin']);
                 break;
             default:
                 throw new \LogicException('missing client in '.__CLASS__);
         }
-        $balance = $this->client->accountBalance(['productType' => 'USDT-FUTURES']);
-        assertArrayHasKey('marginCoin', $balance);
-        assertEquals('USDT', $balance['marginCoin']);
     }
 
     /**
@@ -137,10 +136,10 @@ class RepositoryContext implements Context
         $provider = $this->provider;
         $response = $this->response;
         if ($provider === 'bybit') {
-            $payload = $response['result']['list'];
-            $meta = array_keys($payload[0]);
-            $balance = $payload[0]['coin'];
-            assertGreaterThan(1, count($balance));
+            $balance = array_shift($response);
+            assertArrayHasKey('totalAvailableBalance', $balance);
+            assertArrayHasKey('totalWalletBalance', $balance);
+            assertArrayHasKey('coin', $balance);
         }
     }
 }

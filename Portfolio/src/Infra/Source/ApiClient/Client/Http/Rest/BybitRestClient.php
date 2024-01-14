@@ -103,10 +103,19 @@ class BybitRestClient extends AssetStorageRestClient implements RestApiClient
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
      */
-    public function accountBalance(array $options)
+    public function accountBalance(array $options = null)
     {
+        $urlParams = ['accountType' => self::BYBIT_ACCOUNT_TYPE['UNIFIED']];
+
+        if ($options !== null) {
+            $urlParams = array_merge(
+                $urlParams,
+                $options
+            );
+        }
+
         $url = $this->urlGenerator->generate('wallet_balance',
-            ['accountType' => self::BYBIT_ACCOUNT_TYPE['UNIFIED']]
+            $urlParams
         );
         $response = $this->request(
             method: 'GET',
@@ -114,7 +123,9 @@ class BybitRestClient extends AssetStorageRestClient implements RestApiClient
             options: []
         );
 
-        return json_decode($response->getContent(), true, JSON_PRETTY_PRINT);
+        $data = json_decode($response->getContent(), true, JSON_PRETTY_PRINT);
+
+        return $data['result']['list'];
     }
 
     public function setApiKey(?string $apiKey): void

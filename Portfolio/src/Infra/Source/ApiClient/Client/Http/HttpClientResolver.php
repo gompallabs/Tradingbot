@@ -12,17 +12,11 @@ class HttpClientResolver implements HttpClientRegistryInterface
     private array $clients;
 
     public function __construct(
-        HttpClientInterface $binanceRestClient,
         HttpClientInterface $bybitRestClient,
         HttpClientInterface $bitgetRestClient,
-        HttpClientInterface $coinbaseRestClient,
-        HttpClientInterface $krakenRestClient
     ) {
-        $this->clients['binance'] = $binanceRestClient;
         $this->clients['bybit'] = $bybitRestClient;
         $this->clients['bitget'] = $bitgetRestClient;
-        $this->clients['coinbase'] = $coinbaseRestClient;
-        $this->clients['kraken'] = $krakenRestClient;
     }
 
     public function getHttpClientFor(Source $source): HttpClientInterface

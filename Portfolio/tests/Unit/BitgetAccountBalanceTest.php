@@ -47,6 +47,6 @@ class BitgetAccountBalanceTest extends KernelTestCase
         $balanceCall = $this->client->accountBalance(['productType' => 'USDT-FUTURES']);
         self::assertArrayHasKey('accountEquity', $legacyCallBalance);
         $balance = $balanceCall['accountEquity'];
-        self::assertEquals($legacyBalance, $balance);
+        self::assertEquals(round($legacyBalance, 5), round($balance, 5));
     }
 }

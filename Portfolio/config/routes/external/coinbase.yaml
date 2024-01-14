@@ -1,4 +1,0 @@
-server_time:
-  path: /v2/time
-  methods: [GET]
-

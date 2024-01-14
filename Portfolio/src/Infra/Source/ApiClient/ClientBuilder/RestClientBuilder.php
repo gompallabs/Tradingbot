@@ -32,11 +32,8 @@ class RestClientBuilder implements ClientBuilder
     {
         $routes = $this->routeLoader->getRoutesForSource($source);
         $clientClass = match ($source->getName()) {
-            'binance' => RestClientList::binance->value,
             'bitget' => RestClientList::bitget->value,
             'bybit' => RestClientList::bybit->value,
-            'coinbase' => RestClientList::coinbase->value,
-            'kraken' => RestClientList::kraken->value,
         };
 
         $publicClient = new $clientClass(
