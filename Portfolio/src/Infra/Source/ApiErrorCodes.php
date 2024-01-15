@@ -6,14 +6,15 @@ namespace App\Infra\Source;
 
 use App\Infra\Storage\Storage;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
 class ApiErrorCodes
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'AUTO')]
-    #[ORM\Column('integer')]
-    private int $id;
+    #[ORM\GeneratedValue(strategy: 'NONE')]
+    #[ORM\Column(type: 'uuid')]
+    private Uuid $id;
 
     #[ORM\ManyToOne(targetEntity: Storage::class)]
     #[ORM\JoinColumn(name: 'storage_id', referencedColumnName: 'id')]

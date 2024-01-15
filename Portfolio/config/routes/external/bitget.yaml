@@ -2,10 +2,30 @@ server_time:
   path:  /api/v2/public/time
   methods: [GET]
 
-# wallet_balance is the global list of all assets
+# wallet_balance is the global list of all assets of trading account if you choosed UNIFIED
 # https://bitgetlimited.github.io/apidoc/en/mix/#get-account-list
 wallet_balance:
   path: /api/v2/mix/account/accounts
   methods: [GET]
   requirements:
     productType: \s+
+
+spot_account_info:
+  path: /api/v2/spot/account/info
+  methods: [GET]
+
+spot_account_assets:
+  path: /api/v2/spot/account/assets
+  defaults:
+    coin: ''
+  requirements:
+    coin: \s+
+
+futures_positions:
+  path: /api/v2/mix/position/all-position
+  requirements:
+    # USDT-FUTURES USDT professional futures
+    # COIN-FUTURES Mixed futures
+    # USDC-FUTURES USDC professional futures
+    productType: \s+
+    marginCoin: \s+

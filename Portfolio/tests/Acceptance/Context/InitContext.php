@@ -15,6 +15,7 @@ use App\Infra\Storage\CryptoExchange;
 use Behat\Behat\Context\Context;
 use Symfony\Component\Routing\RouterInterface;
 
+use Symfony\Component\Uid\Uuid;
 use function PHPUnit\Framework\assertInstanceOf;
 use function PHPUnit\Framework\assertLessThan;
 use function PHPUnit\Framework\assertNotNull;
@@ -22,7 +23,6 @@ use function PHPUnit\Framework\assertNotNull;
 final class InitContext implements Context
 {
     private ?float $startTime = null;
-    private RouterInterface $router;
     private StorageRepositoryInterface $storageRepository;
     private RestClientBuilder $restClientBuilder;
 
@@ -51,7 +51,7 @@ final class InitContext implements Context
      */
     public function iHaveACryptoExchangeNamed($arg1)
     {
-        $storage = new CryptoExchange($arg1);
+        $storage = new CryptoExchange(id: Uuid::v4(), name: $arg1);
         $this->storageRepository->save($storage);
         $dbStorage = $this->storageRepository->findOneBy(['name' => $arg1]);
         assertInstanceOf(Storage::class, $dbStorage);

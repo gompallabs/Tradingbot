@@ -6,10 +6,6 @@ namespace App\Infra\Source\ApiClient\Client\Http\Rest;
 
 use App\Domain\Source\Api\Client\RestApiClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\ResponseStreamInterface;
@@ -61,9 +57,11 @@ class BybitRestClient extends AssetStorageRestClient implements RestApiClient
     private function getEncryptedHeaders(string $url): array
     {
         $requestParams = parse_url($url);
-        $queryParams = $requestParams['query'];
+        if (array_key_exists('query', $requestParams)) {
+            $queryParams = $requestParams['query'];
+        }
         $timestamp = time() * 1000;
-        $signature = $this->signature($queryParams, $timestamp);
+        $signature = $this->signature($queryParams ?? null, $timestamp);
 
         return [
             'headers' => [
@@ -97,12 +95,31 @@ class BybitRestClient extends AssetStorageRestClient implements RestApiClient
         return (int) ((int) $response['result']['timeNano'] / 1000000);
     }
 
-    /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ClientExceptionInterface
-     */
+    public function setApiKey(?string $apiKey): void
+    {
+        $this->apiKey = $apiKey;
+    }
+
+    public function setApiKeySecret(?string $apiKeySecret): void
+    {
+        $this->apiKeySecret = $apiKeySecret;
+    }
+
+    public function setApiKeyPassphrase(?string $apiKeyPassphrase): void
+    {
+        $this->apiKeyPassphrase = $apiKeyPassphrase;
+    }
+
+    public function stream(iterable|ResponseInterface $responses, float $timeout = null): ResponseStreamInterface
+    {
+        // TODO: Implement stream() method.
+    }
+
+    public function withOptions(array $options): static
+    {
+        // TODO: Implement withOptions() method.
+    }
+
     public function accountBalance(array $options = null)
     {
         $urlParams = ['accountType' => self::BYBIT_ACCOUNT_TYPE['UNIFIED']];
@@ -128,28 +145,59 @@ class BybitRestClient extends AssetStorageRestClient implements RestApiClient
         return $data['result']['list'];
     }
 
-    public function setApiKey(?string $apiKey): void
+    public function getSpotAccountInfo()
     {
-        $this->apiKey = $apiKey;
+        $url = $this->urlGenerator->generate('spot_account_info');
+        $response = $this->request(
+            method: 'GET',
+            url: $url,
+            options: []
+        );
+        $data = json_decode($response->getContent(), true, JSON_PRETTY_PRINT);
+
+        return $data['result'];
     }
 
-    public function setApiKeySecret(?string $apiKeySecret): void
+    /**
+     * Bybit can not read funding account balance (only transfer transactions -> you have to sum it up)
+     * And if your accountType is "UNIFIED" new USDT (meaning you got funding -> transfert to trading) is seen
+     * as a "coin" in the list and the list contains only "spot" coins not futures.
+     */
+    public function getSpotAccountAssets()
     {
-        $this->apiKeySecret = $apiKeySecret;
+        $url = $this->urlGenerator->generate('spot_account_assets', ['accountType' => 'UNIFIED']);
+        $response = $this->request(
+            method: 'GET',
+            url: $url,
+            options: []
+        );
+
+        $data = json_decode($response->getContent(), true, JSON_PRETTY_PRINT);
+
+        return $data['result'];
     }
 
-    public function setApiKeyPassphrase(?string $apiKeyPassphrase): void
+    /*
+     * On 20240115: decided to use only linear (not inverse or options) futures in this client
+     * feel free to implement if you need it
+     */
+    public function getFuturesPositions(array $types = null)
     {
-        $this->apiKeyPassphrase = $apiKeyPassphrase;
-    }
+        $url = $this->urlGenerator->generate(
+            'futures_positions', [
+                'category' => 'linear',
+                'settleCoin' => 'USDT',
+            ]
+        );
 
-    public function stream(iterable|ResponseInterface $responses, float $timeout = null): ResponseStreamInterface
-    {
-        // TODO: Implement stream() method.
-    }
+        $response = $this->request(
+            method: 'GET',
+            url: $url,
+            options: []
+        );
 
-    public function withOptions(array $options): static
-    {
-        // TODO: Implement withOptions() method.
+        $data = json_decode($response->getContent(), true, JSON_PRETTY_PRINT);
+
+        return $data['result'];
     }
 }

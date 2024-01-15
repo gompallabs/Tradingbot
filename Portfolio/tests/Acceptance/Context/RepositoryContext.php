@@ -33,8 +33,10 @@ class RepositoryContext implements Context
     private RestClientBuilder $restClientBuilder;
 
     private array $response = [];
-
     private ?string $provider = null;
+
+    private array $spot = [];
+    private array $fut = [];
 
     public function __construct(
         StorageRepositoryInterface $assetRepositoryRepository,
@@ -141,5 +143,54 @@ class RepositoryContext implements Context
             assertArrayHasKey('totalWalletBalance', $balance);
             assertArrayHasKey('coin', $balance);
         }
+    }
+
+    /**
+     * @Then I request spot account info
+     */
+    public function iRequestSpotAccountInfo()
+    {
+        $accountInfo = $this->client->getSpotAccountInfo();
+        if ($this->client instanceof BitgetRestClient) {
+            assertArrayHasKey('userId', $accountInfo);
+        }
+        if ($this->client instanceof BybitRestClient) {
+            assertArrayHasKey('marginMode', $accountInfo);
+        }
+    }
+
+    /**
+     * @Then I query the spot balance
+     */
+    public function iQueryTheSpotBalance()
+    {
+        if ($this->client instanceof BitgetRestClient) {
+            $this->spot = $this->client->getSpotAccountAssets();
+        }
+        if ($this->client instanceof BybitRestClient) {
+            $this->spot = $this->client->getSpotAccountAssets();
+        }
+    }
+
+    /**
+     * @Then I query the futures positions
+     */
+    public function iQueryTheFuturesPositions()
+    {
+        if ($this->client instanceof BitgetRestClient) {
+            $this->fut = $this->client->getFuturesPositions(['USDT-FUTURES']);
+        }
+        if ($this->client instanceof BybitRestClient) {
+            $this->fut = $this->client->getFuturesPositions(['linear']);
+        }
+    }
+
+    /**
+     * @Then I save the results, only quantities
+     */
+    public function iSaveTheResultsOnlyQuantities()
+    {
+        dump($this->spot);
+        dd($this->fut);
     }
 }

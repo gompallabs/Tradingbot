@@ -98,6 +98,11 @@ final class BitgetRestClient extends AssetStorageRestClient implements RestApiCl
         $this->apiKeySecret = $apiKeySecret;
     }
 
+    public function setApiKeyPassphrase(?string $apiKeyPassphrase): void
+    {
+        $this->apiKeyPassphrase = $apiKeyPassphrase;
+    }
+
     public function getServerTime(): int
     {
         $url = $this->urlGenerator->generate('server_time');
@@ -125,8 +130,50 @@ final class BitgetRestClient extends AssetStorageRestClient implements RestApiCl
         return $data['data'][0];
     }
 
-    public function setApiKeyPassphrase(?string $apiKeyPassphrase): void
+    public function getSpotAccountInfo()
     {
-        $this->apiKeyPassphrase = $apiKeyPassphrase;
+        $url = $this->urlGenerator->generate('spot_account_info');
+        $response = $this->request(
+            method: 'GET',
+            url: $url
+        );
+
+        $data = json_decode($response->getContent(), true, JSON_PRETTY_PRINT);
+
+        return $data['data'];
+    }
+
+    public function getSpotAccountAssets()
+    {
+        $url = $this->urlGenerator->generate('spot_account_assets');
+        $response = $this->request(
+            method: 'GET',
+            url: $url
+        );
+
+        $data = json_decode($response->getContent(), true, JSON_PRETTY_PRINT);
+
+        return $data['data'];
+    }
+
+    // USDT-FUTURES USDT professional futures
+    // COIN-FUTURES Mixed futures
+    // USDC-FUTURES USDC professional futures
+    public function getFuturesPositions(array $types = null)
+    {
+        $url = $this->urlGenerator->generate('futures_positions',
+            [
+                'productType' => $types[0],
+                'marginCoin' => 'USDT',
+            ]
+        );
+        $response = $this->request(
+            method: 'GET',
+            url: $url
+        );
+
+        $data = json_decode($response->getContent(), true, JSON_PRETTY_PRINT);
+
+        return $data['data'];
     }
 }

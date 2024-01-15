@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\UI\Cli;
 
 use App\App\Command\CreateStorageRepositoryCommand as CreateCommand;
-use App\Infra\Storage\BrokerageAccount;
-use App\Infra\Storage\ColdWallet;
+use App\Infra\Storage\Broker;
+use App\Infra\Storage\SovereignWallet;
 use App\Infra\Storage\CryptoExchange;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -33,7 +33,7 @@ final class CreateRepositoryCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $helper = $this->getHelper('question');
-        $question = new Question("Which Asset Type is in custody ?
+        $question = new Question("Which AssetInterface Type is in custody ?
         \n[1] Broker account
         \n[2] Crypto exchange
         \n[3] Cold Wallet\n\n");
@@ -45,9 +45,9 @@ final class CreateRepositoryCommand extends Command
         $custodyName = trim(strtolower($userInput));
 
         $newCustody = match ($custodyType) {
-            1 => new BrokerageAccount(name: $custodyName),
+            1 => new Broker(name: $custodyName),
             2 => new CryptoExchange(name: $custodyName),
-            3 => new ColdWallet(name: $custodyName)
+            3 => new SovereignWallet(name: $custodyName)
         };
 
         $this->commandBus->dispatch(new CreateCommand($newCustody));

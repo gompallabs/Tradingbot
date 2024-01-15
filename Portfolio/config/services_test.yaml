@@ -39,3 +39,7 @@ services:
             -
                 bitget:   [api_key: '%bitget_api_key%', api_key_secret: '%bitget_api_key_secret%', api_key_passphrase: '%bitget_api_key_passphrase%']
                 bybit:    [api_key: '%bybit_api_key%', api_key_secret: '%bybit_api_key_secret%']
+
+
+    Symfony\Component\Messenger\Transport\TransportInterface:
+        public: true

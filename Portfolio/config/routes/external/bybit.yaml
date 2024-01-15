@@ -12,3 +12,21 @@ wallet_balance:
   requirements:
     accountType: \s+
     coin: \s+
+
+spot_account_info:
+  path: /v5/account/info
+  methods: [GET]
+
+spot_account_assets:
+  path: /v5/account/wallet-balance
+  requirements:
+    coin: accountType
+
+futures_positions:
+  path: /v5/position/list
+  methods: [GET]
+  requirements:
+    category: \s+     #    linear, inverse, option
+    settleCoin: \s+
+
+

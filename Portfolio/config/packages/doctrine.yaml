@@ -10,17 +10,31 @@ doctrine:
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         auto_mapping: true
         mappings:
+            Asset:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Infra/Asset'
+                prefix: 'App\Infra\Asset'
+                alias: Doctrine
+            Order:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Infra/Order'
+                prefix: 'App\Infra\Order'
+                alias: Doctrine
             Source:
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Infra/Source'
                 prefix: 'App\Infra\Source'
-                alias: Source
+                alias: Doctrine
             Storage:
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Infra/Storage'
                 prefix: 'App\Infra\Storage'
-                alias: Repo
-
+                alias: Doctrine
+            User:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Infra/User'
+                prefix: 'App\Infra\User'
+                alias: Doctrine
 
 
 when@test:
