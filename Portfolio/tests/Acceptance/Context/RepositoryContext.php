@@ -8,36 +8,41 @@ use App\Domain\Source\Api\Client\RestApiClient;
 use App\Domain\Source\Api\Orm\Doctrine\ApiErrorCodesRepositoryInterface;
 use App\Domain\Source\Source;
 use App\Domain\Storage\Orm\Doctrine\StorageRepositoryInterface;
+use App\Infra\Source\ApiClient\Client\Http\Rest\BitgetRestClient;
+use App\Infra\Source\ApiClient\Client\Http\Rest\BybitRestClient;
 use App\Infra\Source\ApiClient\ClientBuilder\RestClientBuilder;
 use App\Infra\Source\ApiClient\ClientBuilder\RestClientCredentials;
-use App\Infra\Source\ApiClient\RestClientsList;
-use App\Infra\Source\Source\BinanceApiSource;
 use App\Infra\Source\Source\BitgetApiSource;
 use App\Infra\Source\Source\BybitApiSource;
-use App\Infra\Source\Source\CoinbaseApiSource;
-use App\Infra\Source\Source\KrakenApiSource;
+use App\Infra\Source\Source\JupiterApiSource;
 use Behat\Behat\Context\Context;
-use Behat\Behat\Tester\Exception\PendingException;
+
+use function PHPUnit\Framework\assertArrayHasKey;
+use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertGreaterThan;
 use function PHPUnit\Framework\assertInstanceOf;
+use function PHPUnit\Framework\assertNotEmpty;
 use function PHPUnit\Framework\assertTrue;
 
 class RepositoryContext implements Context
 {
     private StorageRepositoryInterface $assetRepositoryRepository;
     private ApiErrorCodesRepositoryInterface $errorCodesRepository;
-    private string $html;
-    private array $errorCodes;
-
     private RestApiClient $client;
     private RestClientCredentials $clientsCredentials;
     private RestClientBuilder $restClientBuilder;
 
+    private array $response = [];
+    private ?string $provider = null;
+
+    private array $spot = [];
+    private array $fut = [];
+
     public function __construct(
-        StorageRepositoryInterface       $assetRepositoryRepository,
+        StorageRepositoryInterface $assetRepositoryRepository,
         ApiErrorCodesRepositoryInterface $errorCodesRepository,
-        RestClientCredentials            $clientsCredentials,
-        RestClientBuilder                $restClientBuilder
+        RestClientCredentials $clientsCredentials,
+        RestClientBuilder $restClientBuilder
     ) {
         $this->assetRepositoryRepository = $assetRepositoryRepository;
         $this->errorCodesRepository = $errorCodesRepository;
@@ -47,15 +52,11 @@ class RepositoryContext implements Context
 
     private function getSource(string $name): Source
     {
-        return match($name){
-            'binance' => BinanceApiSource::ofType('rest'),
+        return match ($name) {
             'bitget' => BitgetApiSource::ofType('rest'),
             'bybit' => BybitApiSource::ofType('rest'),
-            'coinbase' => CoinbaseApiSource::ofType('rest'),
-            'kraken' => KrakenApiSource::ofType('rest'),
-            default => Throw new \RuntimeException(
-                sprintf('unsupported provider %s in %s', $name, __CLASS__)
-            )
+            'jupiter' => JupiterApiSource::ofType('rest'),
+            default => throw new \RuntimeException(sprintf('unsupported provider %s in %s', $name, __CLASS__))
         };
     }
 
@@ -72,7 +73,7 @@ class RepositoryContext implements Context
         $apiKey = $this->clientsCredentials->getCredentials(
             $this->getSource($arg1)
         );
-        assertGreaterThan(0, strlen($apiKey[0]['api_key']));
+        assertGreaterThan(0, strlen($apiKey['api_key']));
     }
 
     /**
@@ -81,7 +82,7 @@ class RepositoryContext implements Context
     public function iHaveASecretForApiKeyOf($arg1)
     {
         $keys = $this->getApiKeys($arg1);
-        $apiKeySecret = $keys[1]['api_key_secret'];
+        $apiKeySecret = $keys['api_key_secret'];
         assertGreaterThan(0, strlen($apiKeySecret));
     }
 
@@ -91,9 +92,10 @@ class RepositoryContext implements Context
     public function iInstanciateARestApiClientFor($arg1)
     {
         $source = $this->getSource($arg1);
-        $client = $this->restClientBuilder->getClientForSource($source);
+        $client = $this->restClientBuilder->getClientFor(source: $source);
         assertInstanceOf(RestApiClient::class, $client);
         $this->client = $client;
+        $this->provider = $arg1;
     }
 
     /**
@@ -105,10 +107,90 @@ class RepositoryContext implements Context
     }
 
     /**
-     * @Then should be able to sign my :arg1 requests to the Api following documentation
+     * @Given I request account balance for :arg1
      */
-    public function shouldBeAbleToSignMyRequestsToTheApiFollowingDocumentation($arg1)
+    public function iRequestAccountBalanceFor($arg1)
     {
+        switch ($this->provider) {
+            case 'bybit':
+                assertInstanceOf(BybitRestClient::class, $this->client);
+                $this->response = $this->client->accountBalance([
+                    'coin' => 'USDT',
+                ]);
+                assertNotEmpty($this->response);
+                break;
+            case 'bitget':
+                assertInstanceOf(BitgetRestClient::class, $this->client);
+                $balance = $this->client->accountBalance(['productType' => 'USDT-FUTURES']);
+                assertArrayHasKey('marginCoin', $balance);
+                assertEquals('USDT', $balance['marginCoin']);
+                break;
+            default:
+                throw new \LogicException('missing client in '.__CLASS__);
+        }
+    }
 
+    /**
+     * @Then the response should be an array with several balances
+     */
+    public function theResponseShouldBeAnArrayWithSeveralBalances()
+    {
+        $provider = $this->provider;
+        $response = $this->response;
+        if ($provider === 'bybit') {
+            $balance = array_shift($response);
+            assertArrayHasKey('totalAvailableBalance', $balance);
+            assertArrayHasKey('totalWalletBalance', $balance);
+            assertArrayHasKey('coin', $balance);
+        }
+    }
+
+    /**
+     * @Then I request spot account info
+     */
+    public function iRequestSpotAccountInfo()
+    {
+        $accountInfo = $this->client->getSpotAccountInfo();
+        if ($this->client instanceof BitgetRestClient) {
+            assertArrayHasKey('userId', $accountInfo);
+        }
+        if ($this->client instanceof BybitRestClient) {
+            assertArrayHasKey('marginMode', $accountInfo);
+        }
+    }
+
+    /**
+     * @Then I query the spot balance
+     */
+    public function iQueryTheSpotBalance()
+    {
+        if ($this->client instanceof BitgetRestClient) {
+            $this->spot = $this->client->getSpotAccountAssets();
+        }
+        if ($this->client instanceof BybitRestClient) {
+            $this->spot = $this->client->getSpotAccountAssets();
+        }
+    }
+
+    /**
+     * @Then I query the futures positions
+     */
+    public function iQueryTheFuturesPositions()
+    {
+        if ($this->client instanceof BitgetRestClient) {
+            $this->fut = $this->client->getFuturesPositions(['USDT-FUTURES']);
+        }
+        if ($this->client instanceof BybitRestClient) {
+            $this->fut = $this->client->getFuturesPositions(['linear']);
+        }
+    }
+
+    /**
+     * @Then I save the results, only quantities
+     */
+    public function iSaveTheResultsOnlyQuantities()
+    {
+        dump($this->spot);
+        dd($this->fut);
     }
 }

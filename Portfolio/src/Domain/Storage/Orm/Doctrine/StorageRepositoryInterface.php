@@ -3,7 +3,7 @@
 namespace App\Domain\Storage\Orm\Doctrine;
 
 use App\Domain\Storage\Storage;
-use App\Infra\Storage\Custodian;
+use App\Infra\Storage\Account\Custodian;
 
 interface StorageRepositoryInterface extends Storage
 {

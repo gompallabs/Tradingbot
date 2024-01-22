@@ -28,6 +28,7 @@ class RestRouteLoader implements RouteLoader
         $fileLocator = new FileLocator();
         $loaderResolver = new LoaderResolver([new YamlFileLoader($fileLocator)]);
         $delegatingLoader = new DelegatingLoader($loaderResolver);
+
         return $delegatingLoader->load(
             sprintf($this->projectPath.'/config/routes/external/%s.yaml', $source->getName())
         );

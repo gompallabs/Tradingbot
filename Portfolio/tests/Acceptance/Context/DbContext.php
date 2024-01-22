@@ -25,7 +25,7 @@ class DbContext implements Context
             $process = Process::fromShellCommandline(sprintf('%s %s', $consolePath, $command));
             $process->run();
             if (!$process->isSuccessful()) {
-                throw new \RuntimeException('Doctrine migrations failed: '.$process->getErrorOutput());
+                throw new \RuntimeException('Source migrations failed: '.$process->getErrorOutput());
             }
         }
     }

@@ -33,11 +33,14 @@ init:
 	make create_db
 	make run_migrations
 
-
 # quality
 cs-fixer:
 	${RUN_IN_CONTAINER} sh -c "./vendor/bin/php-cs-fixer fix src"
 	${RUN_IN_CONTAINER} sh -c "./vendor/bin/php-cs-fixer fix tests"
+
+stan:
+	${RUN_IN_CONTAINER} sh -c "./vendor/bin/phpstan analyze src --level=5"
+	${RUN_IN_CONTAINER} sh -c "./vendor/bin/phpstan analyze tests --level=5"
 
 # tests
 behat:

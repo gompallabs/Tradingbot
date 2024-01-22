@@ -1,3 +1,0 @@
-server_time:
-  path: /0/public/Time
-  methods: [GET]

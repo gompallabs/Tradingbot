@@ -2,3 +2,31 @@ server_time:
   path: /v5/market/time
   methods: [GET]
 
+# wallet_balance is the global list of all assets
+# https://bybit-exchange.github.io/docs/v5/account/wallet-balance
+wallet_balance:
+  path: /v5/account/wallet-balance
+  methods: [GET]
+  defaults:
+    coin: ""
+  requirements:
+    accountType: \s+
+    coin: \s+
+
+spot_account_info:
+  path: /v5/account/info
+  methods: [GET]
+
+spot_account_assets:
+  path: /v5/account/wallet-balance
+  requirements:
+    coin: accountType
+
+futures_positions:
+  path: /v5/position/list
+  methods: [GET]
+  requirements:
+    category: \s+     #    linear, inverse, option
+    settleCoin: \s+
+
+

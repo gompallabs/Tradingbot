@@ -9,6 +9,7 @@ namespace App\Domain\Asset;
  */
 enum AssetCategory: string
 {
+    case Null = 'null';
     case Security = 'Security';
     case Commodity = 'Commodity';
 }

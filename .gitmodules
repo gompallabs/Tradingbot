@@ -1,0 +1,3 @@
+[submodule "Strategies"]
+	path = Strategies
+	url = git@github.com:gompallabs/Strategies.git

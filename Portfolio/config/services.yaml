@@ -1,17 +1,10 @@
 parameters:
-    binance_api_key: '%env(string:BINANCE_API_KEY)%'
-    binance_api_key_secret: '%env(string:BINANCE_API_KEY_SECRET)%'
     bitget_api_key: '%env(string:BITGET_API_KEY)%'
     bitget_api_key_secret: '%env(string:BITGET_API_KEY_SECRET)%'
+    bitget_api_key_passphrase: '%env(BITGET_API_KEY_PASSPHRASE)%'
     bybit_api_key: '%env(string:BYBIT_API_KEY)%'
     bybit_api_key_secret: '%env(string:BYBIT_API_KEY_SECRET)%'
-    coinbase_api_key: '%env(string:COINBASE_API_KEY)%'
-    coinbase_api_key_secret: '%env(string:COINBASE_API_KEY_SECRET)%'
-    kraken_spot_api_key: '%env(string:KRAKEN_SPOT_API_KEY)%'
-    kraken_spot_api_key_secret: '%env(string:KRAKEN_SPOT_API_KEY_SECRET)%'
-    kraken_futures_api_key: '%env(string:KRAKEN_FUTURES_API_KEY)%'
-    kraken_futures_api_key_secret: '%env(string:KRAKEN_FUTURES_API_KEY_SECRET)%'
-    ext_rest_apis: ['binance','bybit','bitget','coinbase','kraken'] # lowercase names of supported external api
+    ext_rest_apis: ['bybit','bitget']
 
 services:
     _defaults:
@@ -34,9 +27,5 @@ services:
     App\Infra\Source\ApiClient\ClientBuilder\RestClientCredentials:
         arguments:
             -
-                binance:   [api_key: '%binance_api_key%', api_key_secret: '%binance_api_key_secret%']
-                bitget:   [api_key: '%bitget_api_key%', api_key_secret: '%bitget_api_key_secret%']
+                bitget:   [api_key: '%bitget_api_key%', api_key_secret: '%bitget_api_key_secret%', api_key_passphrase: '%bitget_api_key_passphrase%']
                 bybit:    [api_key: '%bybit_api_key%', api_key_secret: '%bybit_api_key_secret%']
-                coinbase:    [api_key: '%coinbase_api_key%', api_key_secret: '%coinbase_api_key_secret%']
-                kraken_spot:    [api_key: '%kraken_spot_api_key%', api_key_secret: '%kraken_spot_api_key_secret%']
-                kraken_futures:    [api_key: '%kraken_futures_api_key%', api_key_secret: '%kraken_futures_api_key_secret%']
