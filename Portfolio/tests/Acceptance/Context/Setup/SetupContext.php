@@ -16,6 +16,7 @@ use App\Infra\User\User;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Gherkin\Node\TableNode;
+use http\Exception\RuntimeException;
 use function PHPUnit\Framework\assertCount;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertInstanceOf;
@@ -84,8 +85,12 @@ class SetupContext implements Context
                 assertInstanceOf(CryptoExchange::class, $bddStorage);
             }
 
+            if(AccountType::tryFrom($accountType) === null){
+                throw new RuntimeException('chose a valid account type for this test !');
+            }
+
             // request permissions where account has $bddStorage and $user === $username
-            $queryResult = $this->permissionRepository->getUserAccount($user, $bddStorage);
+            $queryResult = $this->permissionRepository->getUserAccount($user, $bddStorage, AccountType::tryFrom($accountType));
             assertCount(1, $queryResult);
             assertEquals(AccountType::tryFrom($accountType), $queryResult[0]['accountType']);
         }

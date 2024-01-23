@@ -61,7 +61,7 @@ class PermissionFixtures extends Fixture implements DependentFixtureInterface, F
         $totoBitpandaFiat->addPermission($permission);
         $manager->persist($permission);
 
-        // toto SPOT accounts
+        // toto ASSET_SPOT accounts
         $totoBybitSpot = $this->getReference('toto-bybit-spot');
         $permission = new Permission(
             id: Uuid::v4(),
@@ -106,6 +106,51 @@ class PermissionFixtures extends Fixture implements DependentFixtureInterface, F
         $totoBitpandaSpot->addPermission($permission);
         $manager->persist($permission);
 
+
+        // toto ASSET_FUTURES_TRADING accounts
+        $totoBybitFut = $this->getReference('toto-bybit-trading');
+        $permission = new Permission(
+            id: Uuid::v4(),
+            user: $toto,
+            account: $totoBybitFut
+        );
+        $permission->setAccount($totoBybitFut);
+        $permission->addPermission('o');
+        $permission->addPermission('r');
+        $permission->addPermission('w');
+        $permission->addPermission('t');
+        $totoBybitFut->addPermission($permission);
+        $manager->persist($permission);
+
+
+        $totoBitgetFut = $this->getReference('toto-bitget-trading');
+        $permission = new Permission(
+            id: Uuid::v4(),
+            user: $toto,
+            account: $totoBitgetFut
+        );
+        $permission->setAccount($totoBitgetFut);
+        $permission->addPermission('o');
+        $permission->addPermission('r');
+        $permission->addPermission('w');
+        $permission->addPermission('t');
+        $totoBitgetFut->addPermission($permission);
+        $manager->persist($permission);
+
+
+        $totoBitpandaFut = $this->getReference('toto-bitpanda-trading');
+        $permission = new Permission(
+            id: Uuid::v4(),
+            user: $toto,
+            account: $totoBitpandaFut
+        );
+        $permission->setAccount($totoBitpandaFut);
+        $permission->addPermission('o');
+        $permission->addPermission('r');
+        $permission->addPermission('w');
+        $permission->addPermission('t');
+        $totoBitpandaFut->addPermission($permission);
+        $manager->persist($permission);
 
         $manager->flush();
     }

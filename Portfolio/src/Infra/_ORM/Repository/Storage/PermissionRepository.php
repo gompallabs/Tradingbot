@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infra\_ORM\Repository\Storage;
 
+use App\Domain\Storage\Orm\Doctrine\AccountType;
 use App\Domain\Storage\Orm\Doctrine\PermissionRepositoryInterface;
 use App\Infra\Storage\Account\Account;
 use App\Infra\Storage\Account\Permission;
@@ -21,7 +22,7 @@ class PermissionRepository extends ServiceEntityRepository implements Permission
         parent::__construct($registry, Permission::class);
     }
 
-    public function getUserAccount(User $user, StorageInterface $bddStorage)
+    public function getUserAccount(User $user, StorageInterface $bddStorage, ?AccountType $accountType = null)
     {
         $em = $this->getEntityManager();
         $qb = $em->createQueryBuilder();
@@ -29,20 +30,25 @@ class PermissionRepository extends ServiceEntityRepository implements Permission
             ->select(
                 'p.id',
                 'p.permissions',
-                'u.username',
                 'a.id',
                 'a.type as accountType',
                 's.name AS storageName'
             )
             ->from(Permission::class, 'p')
-            ->leftJoin(join: Account::class, alias:'a', conditionType: Expr\Join::WITH, condition: 'p.account=a' )
-            ->leftJoin(join: User::class, alias: 'u', conditionType: Expr\Join::WITH, condition: 'u=p.user')
-            ->leftJoin(join: Storage::class, alias: 's', conditionType: Expr\Join::WITH, condition:  's=a.storage')
+            ->innerJoin(User::class, 'u', Expr\Join::WITH, 'u=p.user')
             ->where('u.id=:uid')
             ->setParameter('uid', $user->getId())
+            ->innerJoin(Account::class, 'a', Expr\Join::WITH, 'p.account=a')
+            ->innerJoin(Storage::class, 's', Expr\Join::WITH, 's=a.storage')
             ->andWhere('s.id=:sid')
-            ->setParameter('sid', $bddStorage->getId())
-        ;
+            ->setParameter('sid', $bddStorage->getId());
+
+        if($accountType !== null){
+            $qb->andWhere('a.type=:atype')
+                ->setParameter('atype',  $accountType->value)
+            ;
+        }
+
         return $qb->getQuery()->getResult();
     }
 }

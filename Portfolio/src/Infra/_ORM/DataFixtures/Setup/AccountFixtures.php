@@ -44,7 +44,7 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface, Fixt
 
         $bitgetSpot = new Account(Uuid::v4(), AccountType::ASSET_SPOT);
         $bitgetSpot->setStorage($bitget);
-        $this->addReference('toto-bitget-spot', $bybitSpot);
+        $this->addReference('toto-bitget-spot', $bitgetSpot);
         $manager->persist($bitgetSpot);
 
         $bitpandaSpot = new Account(Uuid::v4(), AccountType::ASSET_SPOT);
@@ -60,7 +60,7 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface, Fixt
 
         $bitgetFutTrading = new Account(Uuid::v4(), AccountType::ASSET_FUTURES_TRADING);
         $bitgetFutTrading->setStorage($bitget);
-        $this->addReference('toto-bitget-trading', $bybitFutTrading);
+        $this->addReference('toto-bitget-trading', $bitgetFutTrading);
         $manager->persist($bitgetFutTrading);
 
         $bitpandaFutTrading = new Account(Uuid::v4(), AccountType::ASSET_FUTURES_TRADING);

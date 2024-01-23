@@ -11,5 +11,5 @@ interface PermissionRepositoryInterface
     public function findOneBy(array $criteria, ?array $orderBy = null);
     public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null);
     public function findAll();
-    public function getUserAccount(User $user, Storage $bddStorage);
+    public function getUserAccount(User $user, Storage $bddStorage, ?AccountType $accountType = null);
 }
