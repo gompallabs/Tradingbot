@@ -9,7 +9,7 @@ ARG INSTALL_DIR
 
 WORKDIR /srv/app
 
-COPY behat.yml.dist composer.json composer.lock symfony.lock .env ./
+COPY composer.json composer.lock symfony.lock .env ./
 COPY bin ./bin
 COPY config ./config
 COPY public ./public
@@ -28,6 +28,9 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN apk add --no-cache --update linux-headers \
     acl \
+    autoconf \
+    g++ \
+    make \
     fcgi \
     file \
     gettext \

@@ -68,3 +68,11 @@ Feature:
       | bybit, bitget, bitpanda |
 
   # Asset setup
+  @setup-coins
+  Scenario: create bitcoin, eth and sol spot + perp
+    Given I load the fixtures group "coins"
+    Then the following assets should exist:
+    | spot  | name     | ticker | category  | sub-category  |
+    | true  | bitcoin  | BTC    | commodity | sad           |
+    | true  | ethereum | ETH    | crypto    | sad           |
+    | true  | solana   | SOL    | crypto    | sad           |

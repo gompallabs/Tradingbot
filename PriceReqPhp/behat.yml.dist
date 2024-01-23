@@ -1,0 +1,10 @@
+default:
+    suites:
+        default:
+            contexts:
+                - App\Tests\Acceptance\ConnexionContext
+
+    extensions:
+        FriendsOfBehat\SymfonyExtension:
+            bootstrap: tests/bootstrap.php
+

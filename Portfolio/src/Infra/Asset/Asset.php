@@ -4,22 +4,13 @@ namespace App\Infra\Asset;
 
 use App\Domain\Asset\AssetCategory;
 use App\Domain\Asset\AssetInterface;
-use App\Infra\Asset\Category\Commodity\Commodity;
-use App\Infra\Asset\Category\Security\Crypto;
-use App\Infra\Asset\Category\Security\Equity;
 use App\Infra\Storage\Account\Transaction;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
+use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
-#[ORM\InheritanceType('JOINED')]
-#[ORM\DiscriminatorColumn(name: 'category', type: 'string')]
-#[ORM\DiscriminatorMap([
-    'Commodity' => Commodity::class,
-    'Crypto' => Crypto::class,
-    'Equity' => Equity::class,
-])]
+#[ORM\Entity()]
 class Asset implements AssetInterface
 {
     #[ORM\Id]
@@ -27,25 +18,35 @@ class Asset implements AssetInterface
     #[ORM\Column(type: 'uuid')]
     private Uuid $id;
 
-    #[ORM\Column(type: 'string')]
-    protected string $name;
+    #[ORM\Column()]
+    private string $name;
 
-    #[ORM\Column(type: 'string')]
-    protected string $ticker;
+    #[ORM\Column()]
+    private string $ticker;
+
+    #[ORM\Column(type: 'string', enumType: AssetCategory::class)]
+    private AssetCategory $assetCategory;
 
     #[ORM\OneToMany(mappedBy: 'asset', targetEntity: Transaction::class)]
-    protected Collection $transactions;
+    #[ORM\JoinColumn(name: 'transaction_id', referencedColumnName: 'id')]
+    private Collection $transactions;
 
     public function __construct(Uuid $id, string $name, string $ticker)
     {
         $this->id = $id;
         $this->name = $name;
         $this->ticker = $ticker;
+        $this->transactions = new ArrayCollection();
+    }
+
+    public function setAssetCategory(AssetCategory $assetCategory): void
+    {
+        $this->assetCategory = $assetCategory;
     }
 
     public function getAssetCategory(): AssetCategory
     {
-        return AssetCategory::Null;
+        return $this->assetCategory;
     }
 
     public function getTransactions(): Collection

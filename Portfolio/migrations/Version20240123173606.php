@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240121192951 extends AbstractMigration
+final class Version20240123173606 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -30,7 +30,7 @@ final class Version20240121192951 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_A0F140895CC5DB90 ON api_error_codes (storage_id)');
         $this->addSql('COMMENT ON COLUMN api_error_codes.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN api_error_codes.storage_id IS \'(DC2Type:uuid)\'');
-        $this->addSql('CREATE TABLE asset (id UUID NOT NULL, name VARCHAR(255) NOT NULL, ticker VARCHAR(255) NOT NULL, category VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE asset (id UUID NOT NULL, name VARCHAR(255) NOT NULL, ticker VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('COMMENT ON COLUMN asset.id IS \'(DC2Type:uuid)\'');
         $this->addSql('CREATE TABLE "order" (id UUID NOT NULL, asset_id UUID DEFAULT NULL, quantity DOUBLE PRECISION NOT NULL, direction VARCHAR(255) NOT NULL, order_type VARCHAR(255) NOT NULL, input_time INT NOT NULL, transmition_time INT NOT NULL, status VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_F52993985DA1941 ON "order" (asset_id)');

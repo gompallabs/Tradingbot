@@ -1,6 +1,42 @@
 version: "3.4"
 services:
 
+  price_back_nginx:
+    container_name: price_back_nginx
+    build:
+      context: PriceReqPhp
+      target: symfony_nginx
+      args:
+        - APP_DIR=.
+        - NGINX_CONF_DIR=./.docker/nginx
+        - INSTALL_DIR=app
+        - NGINX_VERSION=1.20
+        - PHP_VERSION=8.2
+        - TZ=Europe/Paris
+    ports:
+      - "8081:80"
+    volumes:
+      - php_socket_price_back:/var/run/php
+
+  price_back:
+    container_name: price_back
+    build:
+      context: PriceReqPhp
+      target: app_php
+      args:
+        - APP_ENV=dev
+        - APP_DIR=.
+        - TZ=Europe/Paris
+        - GID=1000
+        - UID=1000
+        - PHP_VERSION=8.2
+        - NGINX_VERSION=1.20
+    volumes:
+      - php_socket_price_back:/var/run/php
+      - "${PWD}/PriceReqPhp/:/srv/app/:rw"
+      - "${PWD}/PriceReqPhp/.docker/php-fpm.d/conf.d/symfony.dev.ini:/usr/local/etc/php/conf.d/symfony.ini:ro"
+
+
   portfolio_back_nginx:
     container_name: portfolio_back_nginx
     build:
@@ -61,5 +97,6 @@ services:
 
 volumes:
   php_socket_portfolio_back:
+  php_socket_price_back:
   dbdata:
 
