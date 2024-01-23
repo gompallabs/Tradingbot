@@ -60,10 +60,10 @@ Feature:
       And user "toto@example.com" should have for each "cryptoExchange" storage a "FIAT" account:
       | cryptoExchange |
       | bybit, bitget, bitpanda |
-      And user "toto@example.com" should have for each "cryptoExchange" storage a "ASSET_SPOT" account
+      And user "toto@example.com" should have for each "cryptoExchange" storage a "ASSET_SPOT" account:
       | cryptoExchange |
       | bybit, bitget, bitpanda |
-      And user "toto@example.com" should have for each "cryptoExchange" storage a "derivatives" account
+      And user "toto@example.com" should have for each "cryptoExchange" storage a "ASSET_FUTURES_TRADING" account:
       | cryptoExchange |
       | bybit, bitget, bitpanda |
 
