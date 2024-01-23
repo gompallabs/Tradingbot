@@ -95,20 +95,4 @@ class SetupContext implements Context
             assertEquals(AccountType::tryFrom($accountType), $queryResult[0]['accountType']);
         }
     }
-
-    /**
-     * @Then user :arg1 should have for each :arg2 storage a :arg3 account
-     */
-    public function userShouldHaveForEachStorageAAccount2($arg1, $arg2, $arg3, TableNode $table)
-    {
-        throw new PendingException();
-    }
-
-    /**
-     * @Then user :arg1 should have for each :arg2 storage a :arg3
-     */
-    public function userShouldHaveForEachStorageA($arg1, $arg2, $arg3, TableNode $table)
-    {
-        throw new PendingException();
-    }
 }

@@ -67,3 +67,4 @@ Feature:
       | cryptoExchange |
       | bybit, bitget, bitpanda |
 
+  # Asset setup
